@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # Список Ip-адресов устройств
-TARGET_DEVICES=(
-    ""
-)
+# TARGET_DEVICES=(
+#     ""
+# )
 
 SSH_USER="root"
 SSH_PASSWORD="root"
@@ -11,15 +11,13 @@ SSH_PASSWORD="root"
 REQUEST_NAME=""
 
 COMMAND="    
-    apt update && apt install -y wget bash 
+    apt-get update && apt-get install -y wget bash 
 
     wget github
     -O /tmp/your_script.sh &&
     chmod +x /tmp/your_script.sh &&
     /tmp/your_script.sh
 "
-
-COMMAND1="hostname --ip-address"
 
 IP_ADDRESS=$(hostname --ip-address)
 
@@ -44,5 +42,14 @@ fi
 if [[ -z "$REQUEST_NAME" ]]; then
   exit 0
 fi
+
+CREATE_USER_COMMAND="
+    hostnamectl set-hostname \$REQUEST_NAME.au.team &&
+    useradd sshuser -m -U -s /bin/bash &&
+    grep sshuser /etc/passwd &&
+    echo 'P@ssw0rd' | passwd --stdin sshuser
+"
+
+$CREATE_USER_COMMAND
 
 sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no $SSH_USER@$IP "$COMMAND1"
