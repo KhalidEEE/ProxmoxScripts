@@ -65,7 +65,7 @@ function set_admin_role {
     echo -e "$USER_NAME ALL=(ALL) NOPASSWD: ALL" | EDITOR="tee -a" visudo >/dev/null || return 1
 }
 
-chec_sudo
+check_sudo
 set_device_name && echo "device_name установлен" || echo "device_name не найден!"
 set_hostname && echo "Hostname установлен!" || echo "Ошибка установки hostname"
 create_user && echo "Пользователь создан!" || echo "Ошибка создания пользователя"
