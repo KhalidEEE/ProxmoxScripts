@@ -27,8 +27,6 @@ function set_device_name {
         device_name="admin-hq" || return 1
     elif [[ $(hostname --ip-address) == "192.168.11.66" ]]; then
         device_name="srv1-hq" || return 1
-    elif [[ $(hostname --ip-address) == "10.0.2.15" ]]; then
-        device_name="TEST" || return 1
     else return 0
     fi
 }
