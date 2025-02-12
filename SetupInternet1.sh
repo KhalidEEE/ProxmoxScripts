@@ -5,7 +5,7 @@ set -e
 
 ENS_FILE_PATH="/etc/net/ifaces/ens18"
 
-device_name="sw1-hq"
+device_name=""
 device_ip_address=""
 device_gateway=""
 
