@@ -16,25 +16,26 @@ function check_sudo {
     fi
 }
 
-function set_device_name {
+function select_device_name {
     if [[ $(hostname --ip-address) == "192.168.11.82" ]]; then
-        device_name="sw1-hq" || return 1
+        device_name="sw1-hq"
     elif [[ $(hostname --ip-address) == "192.168.11.83" ]]; then
-        device_name="sw2-hq" || return 1
+        device_name="sw2-hq"
     elif [[ $(hostname --ip-address) == "192.168.11.84" ]]; then
-        device_name="sw3-hq" || return 1
+        device_name="sw3-hq"
     elif [[ $(hostname --ip-address) == "192.168.11.85" ]]; then
-        device_name="admin-hq" || return 1
+        device_name="admin-hq"
     elif [[ $(hostname --ip-address) == "192.168.11.66" ]]; then
-        device_name="srv1-hq" || return 1
-    else return 0
+        device_name="srv1-hq"
+    else return 1
     fi
+    return 0
 }
 
 function check_device_name_on_null {
     #Если строка пустая
     if [[ -z $device_name ]]; then
-        return 0
+        return 1
     fi
 }
 
@@ -42,7 +43,7 @@ function set_hostname {
     hostnamectl set-hostname ${device_name}${DOMAIN};
     if [[ $? -ne 0 ]]; then
         echo "Ошибка установки hostname!" >&2
-        return 0
+        return 1
     fi
 }
 
@@ -59,12 +60,13 @@ function set_password {
 }
 
 function set_admin_role {
-    usermod -aG wheel $USER_NAME
+    #Нужна проверка, если запись существует
+    usermod -aG wheel $USER_NAME || return 1
     echo -e "$USER_NAME ALL=(ALL) NOPASSWD: ALL" | EDITOR="tee -a" visudo >/dev/null || return 1
 }
 
 check_sudo
-set_device_name && echo "device_name установлен" || echo "device_name не найден!"
+select_device_name && echo "device_name установлен" || echo "device_name не найден!"
 set_hostname && echo "Hostname установлен!" || echo "Ошибка установки hostname"
 create_user && echo "Пользователь создан!" || echo "Ошибка создания пользователя"
 set_password && echo "Пароль установлен!" || echo "Ошибка установки пароля"
