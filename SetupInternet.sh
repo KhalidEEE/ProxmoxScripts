@@ -3,148 +3,164 @@
 #Остановка скрипта при вознкиновение ошибки
 set -e
 
+ENS_FILE_PATH="/etc/net/ifaces/ens18"
+
 device_name=""
 device_ip_address=""
+device_gateway=""
 
-ENP_FILE_PATH="/etc/net/ifaces/ens18"
+declare -A data_dict
+data_dict["sw1-hq"]="192.168.11.82/29 192.168.11.81"
+data_dict["sw2-hq"]="192.168.11.83/29 192.168.11.81"
+data_dict["sw3-hq"]="192.168.11.84/29 192.168.11.81"
 
-SW1_IP_ADDRESS="192.168.11.82" 
-SW2_IP_ADDRESS="192.168.11.83" 
-SW3_IP_ADDRESS="192.168.11.84" 
-ADMIN_HQ_IP_ADDRESS="192.168.11.85" 
-SRV1_HQ="192.168.11.66" 
+function main_setup_internet {
+    echo_header() {
+    BLUE='\033[0;34m'
+    NC='\033[0m' # No Color
+    echo -e "${BLUE}$1${NC}"
+    }
 
-function check_sudo { 
-    if [[ $EUID -ne 0 ]]; then
-        echo "Запустите скрипт от root!" >&2
-        exit 1
+    echo_subheader() {
+    CYAN='\033[0;36m'
+    NC='\033[0m' # No Color
+    echo -e "${CYAN}$1${NC}"
+    }
+
+    function show_select_device_message {
+        echo_header $'\n\n#>===================== Выберите устройство =====================<#\n'
+
+
+        echo_subheader "   1. SW1-HQ"
+        echo_subheader "   2. SW2-HQ"
+        echo_subheader "   3. SW3-HQ"
+        echo_subheader "   0. exit"
+
+
+        echo_header $'\n#>=====================================================================<#\n'
+    }
+
+    function input_handler {
+        show_select_device_message
+        local choice
+        read choice
+        
+        case "$choice" in 
+
+            "1")
+                device_name="sw1-hq"
+                ;;
+
+            "2")
+                device_name="sw2-hq"
+                ;;
+
+            "3")
+                device_name="sw3-hq"
+                ;;
+
+            "4")
+                device_name="admin-hq"
+                ;;
+
+            "5")
+                device_name="srv1-hq"
+                ;;
+
+            "0")
+                exit 0
+                ;;
+
+        esac
+    }
+
+    while [[ -z "${device_name}" ]]
+    do
+        input_handler
+    done
+    echo "Выбрано: $device_name"
+
+
+    read -r device_ip_address device_gateway <<< "${data_dict[$device_name]}"
+    echo "IP: $device_ip_address"
+    echo "Gateway: $device_gateway"
+
+    #Check file exist
+    if [[ -e $ENS_FILE_PATH ]]; then
+        echo "File exist"
+    else echo "File ens18 not found"
+        exit 0
     fi
-}
 
-function check_ens18_exist {
-    #Существует ли файл
-    if [[ ! -f "$ENP_FILE_PATH" ]]; then
-        return 1
-    fi
-    return 0
-}
+    # Нужна проверка на наличие файла
+    # Rename ens & change params
+    mv /etc/net/ifaces/ens18 /etc/net/ifaces/enp7s1
+    sed -i "s/BOOTPROTO=dhcp/BOOTPROTO=static/g" /etc/net/ifaces/enp7s1/options
 
+    # Нужна проверка на наличие файла
+    mkdir /etc/net/ifaces/enp7s2
+    printf "TYPE=eth\nBOOTPROTO=static" >> /etc/net/ifaces/enp7s2/options
 
-function define_device_name {
-    if [[ $(hostname --ip-address) == $SW1_IP_ADDRESS || $(hostname -f) == sw1-hq ]]; then
-        device_name="sw1-hq"
-    elif [[ $(hostname --ip-address) == $SW2_IP_ADDRESS || $(hostname -f) == sw2-hq ]]; then
-        device_name="sw2-hq"
-    elif [[ $(hostname --ip-address) == $SW3_IP_ADDRESS || $(hostname -f) == sw3-hq ]]; then
-        device_name="sw3-hq"
-    elif [[ $(hostname --ip-address) == $ADMIN_HQ_IP_ADDRESS || $(hostname -f) == admin-hq ]]; then
-        device_name="admin-hq"
-    elif [[ $(hostname --ip-address) == $SRV1_HQ || $(hostname -f) == srv1-hq ]]; then
-        device_name="srv1-hq"
-    else return 1
-    fi
-    return 0
-}
-
-function preparing_enp7s1 {
-    #Preparing enp7s1
-    #Rename ens18 to enp7s1
-    mv /etc/net/ifaces/ens18 /etc/net/ifaces/enp7s1 || return 1
-    sed -i "s/BOOTPROTO=dhcp/BOOTPROTO=static/g" /etc/net/ifaces/enp7s1/options || return 1
-}
-
-function create_interface {
-    #create interface
+    # Копируем парамтеры из enp7s2
     if [[ $device_name == "sw1-hq" || $device_name == "sw3-hq" ]]; then
-        mkdir /etc/net/ifaces/enp7s{2..3} || return 1
+        cp -r /etc/net/ifaces/enp7s2 /etc/net/ifaces/enp7s3
     elif [[ $device_name == "sw2-hq" ]]; then
-        mkdir /etc/net/ifaces/enp7s{2..4} || return 1
-    else return 1
+        cp -r /etc/net/ifaces/enp7s2 /etc/net/ifaces/enp7s3 &&
+        cp -r /etc/net/ifaces/enp7s2 /etc/net/ifaces/enp7s4
     fi
-}
 
-function configure_interface {
-    #set params interface
-    if [[ $device_name == "sw1-hq" || $device_name == "sw3-hq" ]]; then
-        printf "TYPE=eth\nBOOTPROTO=static" >> /etc/net/ifaces/enp7s2 || return 1
-        printf "TYPE=eth\nBOOTPROTO=static" >> /etc/net/ifaces/enp7s3 || return 1
-    #printf "TYPE=eth\nBOOTPROTO=static" >> /etc/net/ifaces/enp7s4
-    elif [[ $device_name == "sw2-hq" ]]; then
-        printf "TYPE=eth\nBOOTPROTO=static" >> /etc/net/ifaces/enp7s2 || return 1
-        printf "TYPE=eth\nBOOTPROTO=static" >> /etc/net/ifaces/enp7s3 || return 1
-        printf "TYPE=eth\nBOOTPROTO=static" >> /etc/net/ifaces/enp7s4 || return 1
-    fi
-    systemctl restart network || return 1
-    return 0
-}
+    systemctl restart network
 
-MGMT_SW1_IP="192.168.11.82/29"
-MGMT_SW2_IP="192.168.11.83/29"
-MGMT_SW3_IP="192.168.11.84/29"
-MGMT_ADMIN_HQ_IP="192.168.11.85/29"
-MGMT_SRV1_HQ_IP="192.168.11.66/29"
+    ovs-vsctl add-br "${device_name^^}"
 
-MGMT_GATEWAY="192.168.11.81"
+    mkdir /etc/net/ifaces/MGMT
+    printf "TYPE=ovsport\nBOOTPROTO=static\nCONFIG_IPV4=yes\nBRIDGE=%s\nVID=330" "${device_name^^}" >> /etc/net/ifaces/MGMT/options
 
-function configure_MGMT {
-    local mgmt_ip=""
+    printf "%s" "${device_ip_address}" > /etc/net/ifaces/MGMT/ipv4address
+    printf "default via %s" "${device_gateway}" > /etc/net/ifaces/MGMT/ipv4route
+    sed -i "s/OVS_REMOVE=yes/OVS_REMOVE=no/g" /etc/net/ifaces/default/options
+    systemctl restart network
 
-    case "$device_name" in
-        "sw1-hq") mgmt_ip="$MGMT_SW1_IP";;
-        "sw2-hq") mgmt_ip="$MGMT_SW2_IP";;
-        "sw3-hq") mgmt_ip="$MGMT_SW3_IP";;
-        "admin-hq") mgmt_ip="$MGMT_ADMIN_HQ_IP";;
-        "srv1-hq") mgmt_ip="$MGMT_SRV1_HQ_IP";;
-        *) echo "Неизвестное устройство: $device_name" >&2; return 1;;
+    case $device_name in 
+
+        sw1-hq)
+            ovs-vsctl add-port SW1-HQ enp7s1 trunk=110,220,330
+            ovs-vsctl add-port SW1-HQ enp7s2 trunk=110,220,330
+            ovs-vsctl add-port SW1-HQ enp7s3 trunk=110,220,330
+
+            ovs-vsctl set bridge SW1-HQ stp_enable=true
+            ovs−vsctl set bridge SW1-HQ other_config:stp-priority=16384
+            ;;
+
+        sw2-hq)
+            ovs-vsctl add-port SW2-HQ enp7s1 trunk=110,220,330
+            ovs-vsctl add-port SW2-HQ enp7s2 trunk=110,220,330
+            ovs-vsctl add-port SW2-HQ enp7s3 tag=220
+            ovs-vsctl add-port SW2-HQ enp7s4 tag=110
+
+            ovs-vsctl set bridge SW2-HQ stp_enable=true
+            ovs−vsctl set bridge SW2-HQ other_config:stp-priority=24576
+            ;;
+
+        sw3-hq)
+            ovs-vsctl add-port SW3-HQ enp7s1 trunk=110,220,330
+            ovs-vsctl add-port SW3-HQ enp7s2 trunk=110,220,330
+            ovs-vsctl add-port SW3-HQ enp7s3 tag=330
+
+            ovs-vsctl set bridge SW3-HQ stp_enable=true
+            ovs−vsctl set bridge SW3-HQ other_config:stp-priority=28672
+            ;;
+
+        admin-hq)
+            echo
+            ;;
+
+        srv1-hq)
+            echo
+            ;;
+
     esac
 
-    mkdir -p /etc/net/ifaces/MGMT || return 1
-    printf '%s' "TYPE=ovsport\nBOOTPROTO=static\nCONFIG_IPV4=yes\nBRIDGE=${device_name^^}\nVID=330" > /etc/net/ifaces/MGMT/options || return 1 # Используем > для перезаписи, если нужно
-    printf "%s" "$mgmt_ip" > /etc/net/ifaces/MGMT/ipv4address || return 1
-    printf "default via %s" "$MGMT_GATEWAY" > /etc/net/ifaces/MGMT/ipv4route || return 1
-    systemctl restart network || return 1
+    modprobe 8021q
+    printf "8021q" >> /etc/modules
 }
-
-
-function create_ovs {
-    #device_name.ToUpper
-    ovs-vsctl add-br ${device_name^^} || return 1
-}
-
-
-function configure_ovs_vsctl {
-    if [[ $device_name == "sw1-hq" ]]; then 
-        ovs-vsctl add-port SW1-HQ enp7s1 trunk=110,220,330 || return 1
-        ovs-vsctl add-port SW1-HQ enp7s2 trunk=110,220,330 || return 1
-        ovs-vsctl add-port SW1-HQ enp7s3 trunk=110,220,330 || return 1
-    elif [[ $device_name == "sw2-hq" ]]; then
-        ovs-vsctl add-port SW1-HQ enp7s1 trunk=110,220,330 || return 1
-        ovs-vsctl add-port SW1-HQ enp7s2 trunk=110,220,330 || return 1
-        ovs-vsctl add-port SW2-HQ enp7s3 tag=220 || return 1
-        ovs-vsctl add-port SW2-HQ enp7s4 tag=110 || return 1
-    elif [[ $device_name == "sw3-hq" ]]; then
-        ovs-vsctl add-port SW1-HQ enp7s1 trunk=110,220,330 || return 1
-        ovs-vsctl add-port SW1-HQ enp7s2 trunk=110,220,330 || return 1
-        ovs-vsctl add-port SW3-HQ enp7s3 tag=330 || return 1
-    fi
-}
-
-function config_kernel_module {
-    #Enable kernel module
-    modprobe 8021q || return 1
-    if ! grep -q "8021q" /etc/modules; then # Проверяем, есть ли модуль в файле
-        echo "8021q" >> /etc/modules || return 1
-    fi
-}
-
-
-check_sudo
-check_ens18_exist
-define_device_name && echo "Имя устройства определенно" || echo "Не удалось определить имя устройства"
-preparing_enp7s1 && echo "enp7s1 создан" || echo "Не удалось настроить интерфейс enp7s1"
-create_interface && echo "enp7s2 и т.д. созданы" || echo "Не удалось создать интрефейсы enp7s.."
-configure_interface && echo "enp7s2 и т.д. настроены " || echo "Не удалось настроить интерфейсы enp7s2, s3.."
-create_ovs && echo "ovs создан" || echo "Не удалось создать ovs"
-configure_MGMT && echo "MGMT создан и настроен" || echo "Не удалось создать MGMT"
-configure_ovs_vsctl && echo "ovs настроен" || echo "Не удалось настроить ovs-vsctl для интерфейсов"
-config_kernel_module && echo "8021q создано и настроено" || echo "Не удалось включить modprobe 8021q"
