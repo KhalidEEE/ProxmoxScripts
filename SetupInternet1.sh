@@ -17,12 +17,6 @@ data_dict["sw3-hq"]="192.168.11.84/29 192.168.11.81"
 data_dict["admin-hq"]="192.168.11.85/29 192.168.11.81"
 data_dict["srv1-hq"]="192.168.11.66/28 192.168.11.65"
 
-echo_info() {
-  GREEN='\033[0;32m'
-  NC='\033[0m' # No Color
-  echo -e "${GREEN}$1${NC}"
-}
-
 echo_header() {
   BLUE='\033[0;34m'
   NC='\033[0m' # No Color
@@ -84,6 +78,8 @@ function input_handler {
 
     echo "Выбрано имя: $device_name"
 }
+
+input_handler
 
 case $(hostname -f) in 
 
