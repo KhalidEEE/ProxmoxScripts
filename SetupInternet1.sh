@@ -30,14 +30,15 @@ echo_subheader() {
 }
 
 function show_select_device_message {
-    echo_header $'\n\n#>===================== Выберите имя устройства =====================<#\n'
+    echo_header $'\n\n#>===================== Выберите устройства =====================<#\n'
+
 
     echo_subheader "   1. SW1-HQ"
     echo_subheader "   2. SW2-HQ"
     echo_subheader "   3. SW3-HQ"
     echo_subheader "   4. ADMIN-HQ"
     echo_subheader "   5. SRV1-HQ"
-    echo_subheader "   0. exit"
+    echo_subheader "   0. exit"=
 
 
     echo_header $'\n#>=====================================================================<#\n'
@@ -75,11 +76,13 @@ function input_handler {
             ;;
 
     esac
-
-    echo "Выбрано имя: $device_name"
 }
 
-input_handler
+while [[ -z "${device_name}" ]]
+do
+    input_handler
+done
+echo "Выбрано: $device_name"
 
 case $(hostname -f) in 
 
