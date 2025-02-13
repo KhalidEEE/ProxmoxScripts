@@ -38,7 +38,7 @@ function show_select_device_message {
     echo_subheader "   3. SW3-HQ"
     echo_subheader "   4. ADMIN-HQ"
     echo_subheader "   5. SRV1-HQ"
-    echo_subheader "   0. exit"=
+    echo_subheader "   0. exit"
 
 
     echo_header $'\n#>=====================================================================<#\n'
@@ -157,6 +157,9 @@ case $device_name in
         ovs-vsctl add-port SW1-HQ enp7s1 trunk=110,220,330
         ovs-vsctl add-port SW1-HQ enp7s2 trunk=110,220,330
         ovs-vsctl add-port SW1-HQ enp7s3 trunk=110,220,330
+
+        ovs-vsctl set bridge SW1-HQ stp_enable=true
+        ovs−vsctl set bridge SW1-HQ other_config:stp-priority=16384
         ;;
 
     sw2-hq)
@@ -164,12 +167,18 @@ case $device_name in
         ovs-vsctl add-port SW2-HQ enp7s2 trunk=110,220,330
         ovs-vsctl add-port SW2-HQ enp7s3 tag=220
         ovs-vsctl add-port SW2-HQ enp7s4 tag=110
+
+        ovs-vsctl set bridge SW2-HQ stp_enable=true
+        ovs−vsctl set bridge SW2-HQ other_config:stp-priority=24576
         ;;
 
     sw3-hq)
         ovs-vsctl add-port SW3-HQ enp7s1 trunk=110,220,330
         ovs-vsctl add-port SW3-HQ enp7s2 trunk=110,220,330
         ovs-vsctl add-port SW3-HQ enp7s3 tag=330
+
+        ovs-vsctl set bridge SW3-HQ stp_enable=true
+        ovs−vsctl set bridge SW3-HQ other_config:stp-priority=28672
         ;;
 
     admin-hq)
