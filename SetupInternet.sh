@@ -23,7 +23,7 @@ function check_sudo {
 
 function check_ens18_exist {
     #Существует ли файл
-    if [[ ! -f $ENP_FILE_PATH ]]; then
+    if [[ ! -f "$ENP_FILE_PATH" ]]; then
         return 1
     fi
     return 0
