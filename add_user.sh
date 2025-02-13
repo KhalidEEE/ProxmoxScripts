@@ -16,20 +16,65 @@ function check_sudo {
     fi
 }
 
-function select_device_name {
-    if [[ $(hostname --ip-address) == "192.168.11.82" ]]; then
-        device_name="sw1-hq"
-    elif [[ $(hostname --ip-address) == "192.168.11.83" ]]; then
-        device_name="sw2-hq"
-    elif [[ $(hostname --ip-address) == "192.168.11.84" ]]; then
-        device_name="sw3-hq"
-    elif [[ $(hostname --ip-address) == "192.168.11.85" ]]; then
-        device_name="admin-hq"
-    elif [[ $(hostname --ip-address) == "192.168.11.66" ]]; then
-        device_name="srv1-hq"
-    else return 1
-    fi
-    return 0
+echo_header() {
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+echo -e "${BLUE}$1${NC}"
+}
+
+echo_subheader() {
+CYAN='\033[0;36m'
+NC='\033[0m' # No Color
+echo -e "${CYAN}$1${NC}"
+}
+
+function show_select_device_message {
+    echo_header $'\n\n#>===================== Выберите устройство =====================<#\n'
+
+
+    echo_subheader "   1. SW1-HQ"
+    echo_subheader "   2. SW2-HQ"
+    echo_subheader "   3. SW3-HQ"
+    echo_subheader "   3. ADMIN-HQ"
+    echo_subheader "   3. SRV1-HQ"
+    echo_subheader "   0. exit"
+
+
+    echo_header $'\n#>=====================================================================<#\n'
+}
+
+function input_handler {
+    show_select_device_message
+    local choice
+    read choice
+    
+    case "$choice" in 
+
+        "1")
+            device_name="sw1-hq"
+            ;;
+
+        "2")
+            device_name="sw2-hq"
+            ;;
+
+        "3")
+            device_name="sw3-hq"
+            ;;
+
+        "4")
+            device_name="admin-hq"
+            ;;
+
+        "5")
+            device_name="srv1-hq"
+            ;;
+
+        "0")
+            exit 0
+            ;;
+
+    esac
 }
 
 function check_device_name_on_null {
