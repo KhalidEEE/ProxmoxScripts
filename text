@@ -6,6 +6,9 @@ options {
         recursing-file "/var/run/named/named.recursing";
         secroots-file "/var/run/named/named.secroots";
 
+        tkey-gssapi-keytab \"/var/lib/samba/bind-dns/dns.keytab\";
+        minimal-responses yes;
+        
         // disables the use of a PID file
         pid-file none;
 
