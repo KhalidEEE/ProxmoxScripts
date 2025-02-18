@@ -3,6 +3,8 @@
 #Остановка скрипта при вознкиновение ошибки
 set -e
 
+source ./show_menu.sh
+
 ENS_FILE_PATH="/etc/net/ifaces/ens18"
 
 # enp7s
@@ -139,4 +141,3 @@ function switching_configuration {
     printf "8021q" >> /etc/modules
 }
 
-switching_configuration

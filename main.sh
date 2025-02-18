@@ -4,6 +4,10 @@
 set -e
 
 source ./show_menu.sh
+source ./HQ-LINE/switching_configuration.sh
+source ./HQ-LINE/setup_dns.sh
+source ./HQ-LINE/setup_time_syncs.sh
+source ./HQ-LINE/setup_samba.sh
 
 function input_handler {
     main_select_action_message
@@ -17,7 +21,7 @@ function input_handler {
             ;;
 
         "2")
-            ./switching_configuration.sh
+            switching_configuration
             ;;
 
         "3")
