@@ -5,6 +5,7 @@ set -e
 
 BIND_PATH="/etc/bind/options.conf"
 KDC_PATH="/etc/krb5.conf"
+SMB_PATH="SMB_PATH=""/etc/samba/smb.conf"
 
 apt-get install task-samba-dc -y
 
@@ -32,6 +33,16 @@ configuring_srv-hq () {
     systemctl enable --now samba
     systemctl start bind
     cp /var/lib/samba/private/krb5.conf /etc/krb5.conf
+
+    sed -i "17s#.*#[SAMBA]#" $SMB_PATH
+    sed -i "18s#.*#        path = /opt/data#" $SMB_PATH
+    sed -i "19s#.*#        comment = \"SAMBA\"" $SMB_PATH
+    sed -i "20s#.*#        public = yes" $SMB_PATH
+    sed -i "21s#.*#        writable = yes" $SMB_PATH
+    sed -i "22s#.*#        browseable = yes" $SMB_PATH
+    sed -i "23s#.*#        guest ok = yes" $SMB_PATH
+
+    systemctl restart samba
 }
 
 adding_all_entries_srv-hq () {
@@ -123,8 +134,23 @@ shared_folder_srv-hq () {
     chmod 777 /opt/data
 
     # Нужно задать параметры в /etc/samba/smb.conf:
+    cp /etc/samba/smb.conf /etc/samba/smb.conf.backup   
+    printf "[SAMBA]\n%9spath = /opt/data\n%9scomment = \"SAMBA\"\n%9spublic = yes\n%9swritable = yes\n%9sbrowseable = yes\n%9sguest ok = yes" >> /etc/samba/smb.conf
 
     systemctl restart samba
+}
+
+create_backup_srv-hq () { 
+    mkdir /var/bac/
+
+    printf "[Unit]\nDescription=Backup /opt/data\n\n[Service]\nType=oneshot\nExecStart=/bin/tar/ -czf \"/var/bac/SAMBA.tar.gz\" 
+    /opt/data\n\n[Install\nWantedBy=multi-user.target" > /etc/systemd/system/backup.service
+
+    systemctl daemon-reload
+    systemctl enable --now backup.service
+    printf "[Unit]\nDescription=Backup /opt/data shared folder Timer\n\n[Timer]\nOnCalendar=*-*-* 20:00:00\nPersistent=true\nUnit=backup.service\n\n[Install]\nWantedBy=timers.target" > /etc/systemd/system/backup.timer
+    systemctl daemon-reload
+    systemctl enable --now backup.timer
 }
 
 configuring_srv-dt () {
@@ -161,3 +187,47 @@ configuring_srv-dt () {
     samba-tool drs replicate srv1-dt.au.team srv1-hq.au.team dc=au,dc=team -Uadministrator
     samba-tool drs replicate srv1-hq.au.team srv1-dt.au.team dc=au,dc=team -Uadministrator
 }
+
+configuring_admin_and_cli () {
+    apt-get update && apt-get install -y gpupdate
+    gpupdate-setup enable
+}
+
+samba_select_handler () {
+    samba_select_device_message
+    local choice
+    read choice
+    
+    case "$choice" in
+
+        "1")
+            configuring_srv-hq
+            adding_all_entries_srv-hq
+            add_user_srv-hq
+            move_clients_srv-hq
+            shared_folder_srv-hq
+            ;;
+        "2") 
+            onfiguring_srv-dt
+            ;;
+        "3") 
+            apt-get update && apt-get install -y gpupdate
+            gpupdate-setup enable
+            apt-get update && apt-get install -y admc
+            kinit administrator@AU.TEAM
+            #Нужно адаптировать изменения в интрефейсе под консоль
+            apt-get install -y gpui
+            #Нужно адаптировать изменения в интрефейсе под консоль
+            ;;
+        "4" | "5" | "6")
+            
+
+            ;;
+
+    esac
+}
+
+while true
+do
+    samba_select_device_message
+done

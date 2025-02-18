@@ -3,68 +3,61 @@
 #Остановка скрипта при вознкиновение ошибки
 set -e
 
+source ./show_menu.sh
+
+
 FILE_PATH="/etc/bind/options.conf"
 ENS_FILE_PATH="/etc/net/ifaces/ens18"
 
 SW_MGMT="MGMT"
 ADMIN_MAIN_INTERFACE="enp7s1"
 
+function dns_input_handler {
+    dns_select_action_message
+    local choice
+    read choice
+    
 
-echo_header() {
-    RED='\033[0;31m'
-    NC='\033[0m' # No Color
-    echo -e "${RED}$1${NC}"
-    }
+    case "$choice" in 
 
-    echo_subheader() {
-    WHITE='\033[0;37m'
-    NC='\033[0m' # No Color
-    echo -e "${WHITE}$1${NC}"
-    }
+        "1")
+            setup_bind_srv1_hq
+            return 1
+            ;;
 
-function show_select_action_message {
-    echo_header $'\n\n#>===================== Выберите устройство =====================<#\n'
+        "2")
+            setup_bind_srv1_dt
+            return 1
+            ;;
+        "3")
+            select_device_dns_handler
+            ;;
+        "0")
+            exit 0
+            ;;
 
-
-    echo_subheader "   1. SRV1-HQ"
-    echo_subheader "   2. SRV1-DT"
-    echo_subheader "   3. SW-HQ"
-    echo_subheader "   4. ADMIN-HQ"
-    echo_subheader "   0. exit"
-
-
-    echo_header $'\n#>=====================================================================<#\n'
+    esac
 }
 
-function input_handler {
-        show_select_action_message
-        local choice
-        read choice
-        
-        case "$choice" in 
+function select_device_dns_handler {
+    dns_show_select_device_internal
+    local choice
+    read choice
+    
+    case "$choice" in 
 
-            "1")
-                setup_bind_srv1_hq
-                return 1
-                ;;
+        "1" | "2" | "3")
+            setup_dns $MGMT
+            ;;
 
-            "2")
-                setup_bind_srv1_dt
-                return 1
-                ;;
-            "3")
-                setup_dns $SW_MGMT
-                return 1
-                ;;
-            "4")
-                setup_dns $ADMIN_MAIN_INTERFACE
-                return 1
-                ;;
-            "0")
-                exit 0
-                ;;
+        "4" | "5" | "6")
+            setup_dns $ADMIN_MAIN_INTERFACE
+            ;;
+        "0")
+            exit 0
+            ;;
 
-        esac
+    esac
 }
 
 
@@ -75,7 +68,7 @@ setup_dns () {
 
 while [[ -z "${device_name}" ]]
 do
-    input_handler
+    dns_input_handler
 done
 
 #Check file exist

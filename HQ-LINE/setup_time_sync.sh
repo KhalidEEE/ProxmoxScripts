@@ -3,6 +3,8 @@
 #Остановка скрипта при вознкиновение ошибки
 set -e
 
+source ./show_menu.sh
+
 CHRONY_PATH="/etc/chrony.conf"
 
 params_srv1_hq () {
@@ -21,33 +23,8 @@ params_all () {
     systemctl restart chronyd
 }
 
-
-echo_header() {
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
-echo -e "${BLUE}$1${NC}"
-}
-
-echo_subheader() {
-CYAN='\033[0;36m'
-NC='\033[0m' # No Color
-echo -e "${CYAN}$1${NC}"
-}
-
-function show_select_device_message {
-    echo_header $'\n\n#>===================== Выберите устройство =====================<#\n'
-
-
-    echo_subheader "   1. srv1-hq"
-    echo_subheader "   2. ANY"
-    echo_subheader "   0. exit"
-
-
-    echo_header $'\n#>=====================================================================<#\n'
-}
-
-function input_handler {
-    show_select_device_message
+function sync_input_handler {
+    sync_select_device_message
     local choice
     read choice
     
@@ -67,7 +44,7 @@ function input_handler {
     esac
 }
 
-while [[ -z "${device_name}" ]]
+while true
 do
-    input_handler
+    sync_input_handler
 done

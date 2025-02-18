@@ -3,63 +3,47 @@
 #Остановка скрипта при вознкиновение ошибки
 set -e
 
-echo_header() {
-    RED='\033[0;31m'
-    NC='\033[0m' # No Color
-    echo -e "${RED}$1${NC}"
-    }
+source ./show_menu.sh
+source ./HQ-LINE/switching_configuration.sh
+source ./HQ-LINE/setup_dns.sh
+source ./HQ-LINE/setup_time_syncs.sh
 
-    echo_subheader() {
-    WHITE='\033[0;37m'
-    NC='\033[0m' # No Color
-    echo -e "${WHITE}$1${NC}"
-    }
+function input_handler {
+    main_select_action_message
+    local choice
+    read choice
+    
+    case "$choice" in 
 
-function show_select_action_message {
-    echo_header $'\n\n#>===================== Выберите действие =====================<#\n'
+        "1")
+            ./add_user.sh
+            ;;
 
+        "2")
+            ./switching_configuration.sh
+            ;;
 
-    echo_subheader "   1. Настройка коммутаторов SW-HQ"
-    echo_subheader "   2. Добавление пользователей(актуально для HQ ветки, на DT не тестировалась)"
-    echo_subheader "   3. Настройка SRV1-HQ"
-    echo_subheader "   0. exit"
+        "3")
+            ./setup_dns.sh
+            ;;
 
+        "4")
+            ./setup_time_syncs.sh
+            ;;
 
-    echo_header $'\n#>=====================================================================<#\n'
+        "5")
+            ./setup_samba.sh
+            ;;
+
+        "0")
+            exit 0
+            ;;
+
+    esac
 }
 
-while [[ -z "${device_name}" ]]
+while true
 do
     input_handler
 done
-
-function input_handler {
-        show_select_action_message
-        local choice
-        read choice
-        
-        case "$choice" in 
-
-            "1")
-                main_setup_internet
-                return 1
-                ;;
-
-            "2")
-                main_add_user
-                return 1
-                ;;
-
-            "3")
-                echo ""
-                return 1
-                ;;
-            "0")
-                exit 0
-                ;;
-
-        esac
-}
-
-main
 

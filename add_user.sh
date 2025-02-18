@@ -85,7 +85,7 @@ function check_device_name_on_null {
 }
 
 function set_hostname {
-    hostnamectl set-hostname ${device_name}${DOMAIN};
+    hostnamectl set-hostname "${device_name}"${DOMAIN};
     if [[ $? -ne 0 ]]; then
         echo "Ошибка установки hostname!" >&2
         return 1
