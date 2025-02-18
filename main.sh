@@ -4,9 +4,6 @@
 set -e
 
 source ./show_menu.sh
-source ./HQ-LINE/switching_configuration.sh
-source ./HQ-LINE/setup_dns.sh
-source ./HQ-LINE/setup_time_syncs.sh
 
 function input_handler {
     main_select_action_message

@@ -120,4 +120,10 @@ function main_add_user {
     set_admin_role && echo "Права админа добавлены!" || echo "Ошибка настройки прав"
 }
 
+while true
+do
+    input_handler
+done
+main_add_user
+
 #sudo userdel -r username
