@@ -3,6 +3,9 @@
 #Остановка скрипта при вознкиновение ошибки
 set -e
 
+chmod +x ./show_menu.sh
+
+
 source ./show_menu.sh
 
 function input_handler {

@@ -120,7 +120,7 @@ function main_add_user {
     set_admin_role && echo "Права админа добавлены!" || echo "Ошибка настройки прав"
 }
 
-while true
+while [[ -z "${device_name}" ]]
 do
     input_handler
 done
