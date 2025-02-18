@@ -3,6 +3,12 @@
 #Остановка скрипта при вознкиновение ошибки
 set -e
 
+chmod +x ./show_menu.sh
+chmod +x ./HQ-LINE/switching_configuration.sh
+chmod +x ./HQ-LINE/setup_dns.sh
+chmod +x ./HQ-LINE/setup_time_sync.sh
+chmod +x ./HQ-LINE/setup_samba.sh
+
 source ./show_menu.sh
 source ./HQ-LINE/switching_configuration.sh
 source ./HQ-LINE/setup_dns.sh
