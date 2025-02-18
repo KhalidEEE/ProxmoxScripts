@@ -113,7 +113,6 @@ function set_admin_role {
 
 function main_add_user {
     check_sudo
-    select_device_name && echo "device_name установлен" || echo "device_name не найден!"
     set_hostname && echo "Hostname установлен!" || echo "Ошибка установки hostname"
     create_user && echo "Пользователь создан!" || echo "Ошибка создания пользователя"
     set_password && echo "Пароль установлен!" || echo "Ошибка установки пароля"

@@ -90,11 +90,11 @@ function samba_select_device_message {
 
 
     echo_subheader "   1. SRV1-HQ"
-    echo_subheader "   1. SRV1-DT"
-    echo_subheader "   2. ADMIN-HQ"
-    echo_subheader "   3. ADMIN-DT"
-    echo_subheader "   4. CLI-HQ"
-    echo_subheader "   5. CLI-DT"
+    echo_subheader "   2. SRV1-DT"
+    echo_subheader "   3. ADMIN-HQ"
+    echo_subheader "   4. ADMIN-DT"
+    echo_subheader "   5. CLI-HQ"
+    echo_subheader "   6. CLI-DT"
     echo_subheader "   0. exit"
 
 

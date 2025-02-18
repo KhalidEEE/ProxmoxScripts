@@ -141,3 +141,4 @@ function switching_configuration {
     printf "8021q" >> /etc/modules
 }
 
+switching_configuration
