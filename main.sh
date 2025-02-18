@@ -4,6 +4,10 @@
 set -e
 
 chmod +x ./show_menu.sh
+chmod +x ./add_user.sh
+chmod +x ./setup_dns.sh
+chmod +x ./setup_time_sync.sh
+chmod +x ./setup_samba.sh
 
 
 source ./show_menu.sh
@@ -28,7 +32,7 @@ function input_handler {
             ;;
 
         "4")
-            ./setup_time_syncs.sh
+            ./setup_time_sync.sh
             ;;
 
         "5")
