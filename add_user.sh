@@ -12,16 +12,16 @@ NEW_PASSWORD="P@ssw0rd"
 DOMAIN=".au.team"
 
 device=""
-old_hostname=""
+old_hostname="${HOSTNAME}"
 
 function set_hostname {
-    eval "${old_hostname}=\"hostname\""
     hostnamectl set-hostname "${device}"${DOMAIN};
 }
 
 function configure_user {
-    useradd $USER_NAME -m -U -s /bin/bash || return 1
+    useradd ${USER_NAME} -m -U -s /bin/bash || return 1
     echo $USER_NAME:$NEW_PASSWORD | chpasswd || return 1
+    grep ${USER_NAME} /etc/passwd
 }
 
 function set_role {
@@ -42,8 +42,8 @@ function rollback() {
 function message_select_device() {
     local var=""
     while [ -z ${device} ]; do
-        printf "Выберите устройство:\n 1.SW1-HQ\n 2.SW2-HQ\n 3.SW3-HQ\n 0.Exit"
-            read var
+        printf "Выберите устройство:\n 1.SW1-HQ\n 2.SW2-HQ\n 3.SW3-HQ\n 0.Exit\n"
+            read -r var
             if [[ ${var} == "1" ]]; then device="sw1-hq"
             elif [[ ${var} == "2" ]]; then device="sw2-hq"
             elif [[ ${var} == "3" ]]; then device="sw3-hq"
@@ -62,3 +62,5 @@ function main_add_user {
     set_role && echo "Права админа добавлены!" || echo "Ошибка при настройки прав"
     echo "Настройка пользователя завершена"
 }
+
+main_add_user
