@@ -7,8 +7,6 @@ source "$my_dir/src/utils.sh"
 #Остановка скрипта при вознкиновение ошибки
 set -e
 
-set -x
-
 USER_NAME="sshuser"
 NEW_PASSWORD="P@ssw0rd"
 DOMAIN=".au.team"
@@ -60,8 +58,8 @@ function main_add_user {
     check_sudo
     message_select_device
     set_hostname && echo "Hostname установлен!" || echo "Ошибка установки hostname"
-    configure_user && echo "Пользователь создан!" || echo "Ошибка при создания пользователя"
-    set_role && echo "Права админа добавлены!" || echo "Ошибка при настройки прав"
+    configure_user && echo "Пользователь создан!" || { echo "Ошибка при создания пользователя" && rollback; }
+    set_role && echo "Права админа добавлены!" || { echo "Ошибка при настройки прав" && rollback; }
     echo "Настройка пользователя завершена"
 }
 
