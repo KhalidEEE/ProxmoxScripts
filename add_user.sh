@@ -1,128 +1,64 @@
 #! /bin/bash
 
+my_dir="$(dirname "$0")"
+
+source "$my_dir/src/utils.sh"
+
 #Остановка скрипта при вознкиновение ошибки
 set -e
 
 USER_NAME="sshuser"
 NEW_PASSWORD="P@ssw0rd"
-
-device_name=""
 DOMAIN=".au.team"
 
-function check_sudo { 
-    if [[ $EUID -ne 0 ]]; then
-        echo "Запустите скрипт от root!" >&2
-        exit 1
-    fi
-}
-
-echo_header() {
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
-echo -e "${BLUE}$1${NC}"
-}
-
-echo_subheader() {
-CYAN='\033[0;36m'
-NC='\033[0m' # No Color
-echo -e "${CYAN}$1${NC}"
-}
-
-function show_select_device_message {
-    echo_header $'\n\n#>===================== Выберите устройство =====================<#\n'
-
-
-    echo_subheader "   1. SW1-HQ"
-    echo_subheader "   2. SW2-HQ"
-    echo_subheader "   3. SW3-HQ"
-    echo_subheader "   3. ADMIN-HQ"
-    echo_subheader "   3. SRV1-HQ"
-    echo_subheader "   0. exit"
-
-
-    echo_header $'\n#>=====================================================================<#\n'
-}
-
-function input_handler {
-    show_select_device_message
-    local choice
-    read choice
-    
-    case "$choice" in 
-
-        "1")
-            device_name="sw1-hq"
-            ;;
-
-        "2")
-            device_name="sw2-hq"
-            ;;
-
-        "3")
-            device_name="sw3-hq"
-            ;;
-
-        "4")
-            device_name="admin-hq"
-            ;;
-
-        "5")
-            device_name="srv1-hq"
-            ;;
-
-        "0")
-            exit 0
-            ;;
-
-    esac
-}
-
-function check_device_name_on_null {
-    #Если строка пустая
-    if [[ -z $device_name ]]; then
-        return 1
-    fi
-}
+device=""
+old_hostname=""
 
 function set_hostname {
-    hostnamectl set-hostname "${device_name}"${DOMAIN};
-    if [[ $? -ne 0 ]]; then
-        echo "Ошибка установки hostname!" >&2
-        return 1
-    fi
+    eval "${old_hostname}=\"hostname\""
+    hostnamectl set-hostname "${device}"${DOMAIN};
 }
 
-function create_user {
-    
-    if id "$USER_NAME" &>/dev/null; then
-        userdel -r $USER_NAME || return 1
-    fi
+function configure_user {
     useradd $USER_NAME -m -U -s /bin/bash || return 1
-}
-
-function set_password {
     echo $USER_NAME:$NEW_PASSWORD | chpasswd || return 1
 }
 
-function set_admin_role {
+function set_role {
     #Нужна проверка, если запись существует
     usermod -aG wheel $USER_NAME || return 1
-    echo -e "$USER_NAME ALL=(ALL) NOPASSWD: ALL" | EDITOR="tee -a" visudo >/dev/null || return 1
+    if grep -q "sshuser ALL=(ALL:ALL) NOPASSWD: ALL" /etc/sudoers; then
+        echo "NOPASSWD уже добавлен"
+    else
+        echo -e "$USER_NAME ALL=(ALL) NOPASSWD: ALL" | EDITOR="tee -a" visudo >/dev/null || return 1
+    fi
+}
+
+function rollback() {
+    userdel -r "${USER_NAME}"
+    hostnamectl set-hostname "${old_hostname}"
+}
+
+function message_select_device() {
+    local var=""
+    while [ -z ${device} ]; do
+        printf "Выберите устройство:\n 1.SW1-HQ\n 2.SW2-HQ\n 3.SW3-HQ\n 0.Exit"
+            read var
+            if [[ ${var} == "1" ]]; then device="sw1-hq"
+            elif [[ ${var} == "2" ]]; then device="sw2-hq"
+            elif [[ ${var} == "3" ]]; then device="sw3-hq"
+            elif [[ ${var} == "0" ]]; then exit
+            else message_select_device
+            fi
+    done
 }
 
 
 function main_add_user {
     check_sudo
+    message_select_device
     set_hostname && echo "Hostname установлен!" || echo "Ошибка установки hostname"
-    create_user && echo "Пользователь создан!" || echo "Ошибка создания пользователя"
-    set_password && echo "Пароль установлен!" || echo "Ошибка установки пароля"
-    set_admin_role && echo "Права админа добавлены!" || echo "Ошибка настройки прав"
+    configure_user && echo "Пользователь создан!" || echo "Ошибка при создания пользователя" && rollback
+    set_role && echo "Права админа добавлены!" || echo "Ошибка при настройки прав"
+    echo "Настройка пользователя завершена"
 }
-
-while [[ -z "${device_name}" ]]
-do
-    input_handler
-done
-main_add_user
-
-#sudo userdel -r username
