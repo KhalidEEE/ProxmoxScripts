@@ -2,7 +2,7 @@
 
 my_dir="$(dirname "$0")"
 
-source "$my_dir/src/utils.sh"
+source "$my_dir/utils.sh"
 
 #Остановка скрипта при вознкиновение ошибки
 set -e
