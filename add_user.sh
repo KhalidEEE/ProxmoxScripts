@@ -60,8 +60,8 @@ function main_add_user {
     check_sudo
     message_select_device
     set_hostname && echo "Hostname установлен!" || echo "Ошибка установки hostname"
-    configure_user && echo "Пользователь создан!" || echo "Ошибка при создания пользователя" && rollback
-    set_role && echo "Права админа добавлены!" || echo "Ошибка при настройки прав" && rollback
+    configure_user && echo "Пользователь создан!" || echo "Ошибка при создания пользователя"
+    set_role && echo "Права админа добавлены!" || echo "Ошибка при настройки прав"
     echo "Настройка пользователя завершена"
 }
 
