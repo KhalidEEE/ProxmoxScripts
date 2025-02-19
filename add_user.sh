@@ -27,7 +27,7 @@ function configure_user {
 function set_role {
     #Нужна проверка, если запись существует
     usermod -aG wheel $USER_NAME || return 1
-    if grep -q "sshuser ALL=(ALL:ALL) NOPASSWD: ALL" /etc/sudoers; then
+    if grep -Ei -q "${USER_NAME}" /etc/sudoers; then
         echo "NOPASSWD уже добавлен"
     else
         echo -e "$USER_NAME ALL=(ALL) NOPASSWD: ALL" | EDITOR="tee -a" visudo >/dev/null || return 1
