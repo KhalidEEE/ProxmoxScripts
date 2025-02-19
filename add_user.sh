@@ -7,6 +7,8 @@ source "$my_dir/src/utils.sh"
 #Остановка скрипта при вознкиновение ошибки
 set -e
 
+set -x
+
 USER_NAME="sshuser"
 NEW_PASSWORD="P@ssw0rd"
 DOMAIN=".au.team"
@@ -19,7 +21,7 @@ function set_hostname {
 }
 
 function configure_user {
-    useradd ${USER_NAME} -m -U -s /bin/bash || return 1
+    useradd $USER_NAME -m -U -s /bin/bash || return 1
     echo $USER_NAME:$NEW_PASSWORD | chpasswd || return 1
     grep ${USER_NAME} /etc/passwd
 }
@@ -59,7 +61,7 @@ function main_add_user {
     message_select_device
     set_hostname && echo "Hostname установлен!" || echo "Ошибка установки hostname"
     configure_user && echo "Пользователь создан!" || echo "Ошибка при создания пользователя" && rollback
-    set_role && echo "Права админа добавлены!" || echo "Ошибка при настройки прав"
+    set_role && echo "Права админа добавлены!" || echo "Ошибка при настройки прав" && rollback
     echo "Настройка пользователя завершена"
 }
 
