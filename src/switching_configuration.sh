@@ -9,19 +9,12 @@ source "$my_dir/utils.sh"
 
 # enp7s
 enp_path_arr=("/etc/net/ifaces/enp7s1/" "/etc/net/ifaces/enp7s2/" "/etc/net/ifaces/enp7s3/" "/etc/net/ifaces/enp7s4/")
-mgmt_path=""
-
 
 device=""
-device_ip=""
+#device_ip=""
 device_gateway="192.168.11.81"
 
 interface_settings="BOOTPROTO=static\nTYPE=eth\nCONFIG_WIRELESS=no\nSYSTEMD_BOOTPROTO=static\nCONFIG_IPV4=yes\nDISABLED=no\nNM_CONTROLLED=no\nSYSTEMD_CONTROLLED=no"
-
-declare -A ip_dict
-ip_dict["sw1-hq"]="192.168.11.82/29"
-ip_dict["sw2-hq"]="192.168.11.83/29"
-ip_dict["sw3-hq"]="192.168.11.84/29"
 
 
 function create_interface() {
@@ -83,7 +76,6 @@ function setup_main_tree_protocol() {
 }
 
 function configure_mgmt() {
-    device_ip=${ip_dict[device]}
     mkdir /etc/net/ifaces/MGMT/
     printf "TYPE=ovsport\nBOOTPROTO=static\nCONFIG_IPV4=yes\nBRIDGE=%s\nVID=330" "${device^^}" >> /etc/net/ifaces/MGMT/options
     # device_ip пустой
@@ -113,7 +105,8 @@ function rollback() {
         fi
     done
 
-    if [[ -e "${enp_path_arr[$i]}" ]]; then rm -rf /etc/net/ifaces/MGMT/
+    if [[ -e /etc/net/ifaces/MGMT/ ]]; then
+        rm -rf /etc/net/ifaces/MGMT/
     fi
     ovs-vsctl del-br "${var^^}"
     exit
@@ -125,8 +118,8 @@ function message_select_device() {
         printf "Выберите устройство:\n 1.SW1-HQ\n 2.SW2-HQ\n 3.SW3-HQ\n 4.Rollback\n 0.Exit\n"
             read -r var
             if [[ ${var} == "1" ]]; then device="sw1-hq" device_ip="192.168.11.82/29"
-            elif [[ ${var} == "2" ]]; then device="sw2-hq" device_ip="192.168.11.83/29"
-            elif [[ ${var} == "3" ]]; then device="sw3-hq" device_ip="192.168.11.84/29"
+            elif [[ ${var} == "2" ]]; then device="sw2-hq" device_ip="192.168.11.82/29"
+            elif [[ ${var} == "3" ]]; then device="sw3-hq" device_ip="192.168.11.82/29"
             elif [[ ${var} == "4" ]]; then rollback
             elif [[ ${var} == "0" ]]; then exit
             fi
@@ -136,8 +129,6 @@ function message_select_device() {
 function main {
     check_sudo
     message_select_device
-#    device_ip=${ip_dict[$device]}
-#    echo $device_ip
     create_interface || echo "Ошибка при создание интерфейсов"
     configure_interface && echo "Интерфейсы enp7s созданы и настроены" || echo "Ошибка при настройке интерфейсов"
     systemctl restart network
