@@ -12,3 +12,11 @@ function check_sudo() {
         exit 1
     fi
 }
+
+function check_file_exist() {
+    if [[ -e $1 ]]; then
+        return 0
+    else echo "File $1 not found"
+        retunr 1
+    fi
+}
