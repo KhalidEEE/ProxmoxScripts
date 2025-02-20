@@ -9,7 +9,7 @@ source "$my_dir/utils.sh"
 
 # enp7s
 enp_path_arr=("/etc/net/ifaces/enp7s1/" "/etc/net/ifaces/enp7s2/" "/etc/net/ifaces/enp7s3/" "/etc/net/ifaces/enp7s4/")
-mgmt_path="/etc/net/ifaces/MGMT/"
+mgmt_path=""
 
 
 device=""
@@ -84,11 +84,11 @@ function setup_main_tree_protocol() {
 
 function configure_mgmt() {
     device_ip=${ip_dict[device]}
-    mkdir "${mgmt_path}"
-    printf "TYPE=ovsport\nBOOTPROTO=static\nCONFIG_IPV4=yes\nBRIDGE=%s\nVID=330" "${device^^}" >> ${mgmt_path}options
+    mkdir /etc/net/ifaces/MGMT/
+    printf "TYPE=ovsport\nBOOTPROTO=static\nCONFIG_IPV4=yes\nBRIDGE=%s\nVID=330" "${device^^}" >> /etc/net/ifaces/MGMT/options
     # device_ip пустой
-    echo "${device_ip}" >> ${mgmt_path}ipv4address
-    printf "default via %s" "${device_gateway}" >> ${mgmt_path}ipv4route
+    echo "${device_ip}" >> /etc/net/ifaces/MGMT/ipv4address
+    printf "default via %s" "${device_gateway}" >> /etc/net/ifaces/MGMT/ipv4route
 }
 
 function configure_modprobe() {
@@ -113,7 +113,7 @@ function rollback() {
         fi
     done
 
-    if [[ -e "${enp_path_arr[$i]}" ]]; then rm -rf ${mgmt_path}
+    if [[ -e "${enp_path_arr[$i]}" ]]; then rm -rf /etc/net/ifaces/MGMT/
     fi
     ovs-vsctl del-br "${var^^}"
     exit
