@@ -93,11 +93,16 @@ function configure_modprobe() {
 }
 
 function rollback() {
-    printf "Выберите устройство:\n SW1-HQ\n SW2-HQ\n SW3-HQ\n 0.Exit\n"
     local var=""
-    read -r var
-    if [[ ${var} == "0" ]]; then exit
-    fi
+    while [ -z "${device}" ]; do
+        printf "Выберите устройство:\n SW1-HQ\n SW2-HQ\n SW3-HQ\n 0.Exit\n"
+            read -r var
+            if [[ ${var} == "1" ]]; then device="sw1-hq"
+            elif [[ ${var} == "2" ]]; then device="sw2-hq"
+            elif [[ ${var} == "3" ]]; then device="sw3-hq"
+            elif [[ ${var} == "0" ]]; then exit
+            fi
+    done
 
     for (( i = 0; i < 4; i++ )); do
         if [[ -e "${enp_path_arr[$i]}" ]]; then
