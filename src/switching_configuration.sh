@@ -23,8 +23,6 @@ ip_dict["sw1-hq"]="192.168.11.82/29"
 ip_dict["sw2-hq"]="192.168.11.83/29"
 ip_dict["sw3-hq"]="192.168.11.84/29"
 
-device_ip=${ip_dict["sw1-hq"]}
-echo $device_ip
 
 function create_interface() {
     if [[ $device == "sw2-hq" ]]; then
@@ -42,10 +40,10 @@ function configure_interface() {
     echo -e "$interface_settings" >> "${enp_path_arr[0]}options"
     printf "TYPE=eth\nBOOTPROTO=static" >> "${enp_path_arr[1]}"options
     if [[ $device == "sw2-hq" ]]; then
-            cp -r "${enp_path_arr[1]}" "${enp_path_arr[2]}"
-            cp -r "${enp_path_arr[1]}" "${enp_path_arr[3]}"
+            cp -r "${enp_path_arr[1]}options" "${enp_path_arr[2]}"
+            cp -r "${enp_path_arr[1]}options" "${enp_path_arr[3]}"
     else
-            cp -r "${enp_path_arr[1]}" "${enp_path_arr[2]}"
+            cp -r "${enp_path_arr[1]}options" "${enp_path_arr[2]}"
     fi
 }
 
@@ -79,7 +77,7 @@ function setup_main_tree_protocol() {
             ovs-vsctl set bridge SW2-HQ stp_enable=true
             ovs-vsctl set bridge SW2-HQ other_config:stp-priority=24576 ;;
         "sw3-hq")
-            ovs-vsctl set bridge SW3-HQ stp_enable=true
+            ovs-vsctl set bridge SW3-HQ stp_enыable=true
             ovs-vsctl set bridge SW3-HQ other_config:stp-priority=28672 ;;
     esac
 }
@@ -87,7 +85,8 @@ function setup_main_tree_protocol() {
 function configure_mgmt() {
     device_ip=${ip_dict[device]}
     mkdir "${mgmt_path}"
-    printf "TYPE=ovsport\nBOOTPROTO=static\nCONFIG_IPV4=yes\nBRIDGE=%s\nVID=330" "${device^^}" >> ${mgmt_path}/options
+    printf "TYPE=ovsport\nBOOTPROTO=static\nCONFIG_IPV4=yes\nBRIDGE=%s\nVID=330" "${device^^}" >> ${mgmt_path}options
+    # device_ip пустой
     printf "%s" "${device_ip}" >> ${mgmt_path}ipv4address
     printf "default via %s" "${device_gateway}" >> ${mgmt_path}ipv4route
 }
@@ -95,6 +94,7 @@ function configure_mgmt() {
 function configure_modprobe() {
     local conf_path="/etc/modules"
     modprobe 8021q
+    # Проверка не работает
     if ! grep -Ei -q "8021q"e $conf_path; then
         printf "8021q" >> $conf_path
     fi
@@ -117,15 +117,16 @@ function message_select_device() {
 function main {
     check_sudo
     message_select_device
-    create_interface || echo "Ошибка при создание интерфейсов"
-    configure_interface && echo "Интерфейсы enp7s созданы и настроены" || echo "Ошибка при настройке интерфейсов"
-    systemctl restart network
-    setup_ovs && echo "ovs настроен" || echo "Ошибка при настройке ovs"
-    configure_mgmt && echo "MGMT создан и настроен" || echo "Ошибка при настройке MGMT"
-    systemctl restart network
-    configure_modprobe && echo "modprobe подключен и настроен" || echo "Ошибка при настройке modprobe"
-    setup_main_tree_protocol && echo "Протокол основного дерева настроен" || echo "Ошибка при настройке протокола основного дерева"
-    systemctl restart network
+    device_ip=${ip_dict["sw1-hq"]}
+#    create_interface || echo "Ошибка при создание интерфейсов"
+#    configure_interface && echo "Интерфейсы enp7s созданы и настроены" || echo "Ошибка при настройке интерфейсов"
+#    systemctl restart network
+#    setup_ovs && echo "ovs настроен" || echo "Ошибка при настройке ovs"
+#    configure_mgmt && echo "MGMT создан и настроен" || echo "Ошибка при настройке MGMT"
+#    systemctl restart network
+#    configure_modprobe && echo "modprobe подключен и настроен" || echo "Ошибка при настройке modprobe"
+#    setup_main_tree_protocol && echo "Протокол основного дерева настроен" || echo "Ошибка при настройке протокола основного дерева"
+#    systemctl restart network
 }
 
 main
