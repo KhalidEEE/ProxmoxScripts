@@ -101,6 +101,12 @@ function configure_modprobe() {
 }
 
 function rollback() {
+    printf "Выберите устройство:\n SW1-HQ\n SW2-HQ\n SW3-HQ\n 0.Exit\n"
+    local var=""
+    read -r var
+    if [[ ${var} == "0" ]]; then exit
+    fi
+
     for (( i = 0; i < 4; i++ )); do
         if [[ -e "${enp_path_arr[$i]}" ]]; then
             rm -rf "${enp_path_arr[$i]}"
@@ -109,7 +115,7 @@ function rollback() {
 
     if [[ -e "${enp_path_arr[$i]}" ]]; then rm -rf ${mgmt_path}
     fi
-    ovs-vsctl del-br "${device^^}"
+    ovs-vsctl del-br "${var^^}"
     exit
 }
 
