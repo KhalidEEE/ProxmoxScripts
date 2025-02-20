@@ -87,7 +87,7 @@ function configure_mgmt() {
     mkdir "${mgmt_path}"
     printf "TYPE=ovsport\nBOOTPROTO=static\nCONFIG_IPV4=yes\nBRIDGE=%s\nVID=330" "${device^^}" >> ${mgmt_path}options
     # device_ip пустой
-    printf "%s" "${device_ip}" >> ${mgmt_path}ipv4address
+    echo "${device_ip}" >> ${mgmt_path}ipv4address
     printf "default via %s" "${device_gateway}" >> ${mgmt_path}ipv4route
 }
 
@@ -95,7 +95,7 @@ function configure_modprobe() {
     local conf_path="/etc/modules"
     modprobe 8021q
     # Проверка не работает
-    if ! grep -q "8021q"e $conf_path; then
+    if ! grep -q "8021q" $conf_path; then
         printf "8021q" >> $conf_path
     fi
 }
@@ -116,7 +116,7 @@ function rollback() {
 function message_select_device() {
     local var=""
     while [ -z "${device}" ]; do
-        printf "Выберите устройство:\n 1.SW1-HQ\n 2.SW2-HQ\n 3.SW3-HQ\n 4.Rollback 0.Exit\n"
+        printf "Выберите устройство:\n 1.SW1-HQ\n 2.SW2-HQ\n 3.SW3-HQ\n 4.Rollback\n 0.Exit\n"
             read -r var
             if [[ ${var} == "1" ]]; then device="sw1-hq"
             elif [[ ${var} == "2" ]]; then device="sw2-hq"
