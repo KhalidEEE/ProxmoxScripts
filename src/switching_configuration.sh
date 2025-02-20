@@ -3,7 +3,9 @@
 #Остановка скрипта при вознкиновение ошибки
 set -e
 
-source ./show_menu.sh
+my_dir="$(dirname "$0")"
+
+source "$my_dir/utils.sh"
 
 # enp7s
 enp_path_arr=("/etc/net/ifaces/enp7s1/" "/etc/net/ifaces/enp7s2/" "/etc/net/ifaces/enp7s3/" "/etc/net/ifaces/enp7s4/")
@@ -34,7 +36,7 @@ function create_interface() {
 }
 
 function configure_interface() {
-    echo "$interface_settings" >> "${enp_path_arr[0]}options"
+    printf "%s" "$interface_settings" >> "${enp_path_arr[0]}options"
     printf "TYPE=eth\nBOOTPROTO=static" >> "${enp_path_arr[1]}"options
     if [[ $device == "sw2-hq" ]]; then
             cp -r "${enp_path_arr[1]}" "${enp_path_arr[2]}"
@@ -69,13 +71,13 @@ function setup_main_tree_protocol() {
     case $device in
         "sw1-hq")
             ovs-vsctl set bridge SW1-HQ stp_enable=true
-            ovs−vsctl set bridge SW1-HQ other_config:stp-priority=16384 ;;
+            ovs-vsctl set bridge SW1-HQ other_config:stp-priority=16384 ;;
         "sw2-hq")
             ovs-vsctl set bridge SW2-HQ stp_enable=true
-            ovs−vsctl set bridge SW2-HQ other_config:stp-priority=24576 ;;
+            ovs-vsctl set bridge SW2-HQ other_config:stp-priority=24576 ;;
         "sw3-hq")
             ovs-vsctl set bridge SW3-HQ stp_enable=true
-            ovs−vsctl set bridge SW3-HQ other_config:stp-priority=28672 ;;
+            ovs-vsctl set bridge SW3-HQ other_config:stp-priority=28672 ;;
     esac
 }
 
@@ -108,7 +110,7 @@ function message_select_device() {
     done
 }
 
-function main_add_user {
+function main {
     check_sudo
     message_select_device
     create_interface || echo "Ошибка при создание интерфейсов"
@@ -122,3 +124,4 @@ function main_add_user {
     systemctl restart network
 }
 
+main
