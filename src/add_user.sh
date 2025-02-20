@@ -58,7 +58,6 @@ function message_select_device() {
             elif [[ ${var} == "10" ]]; then device=${device_arr[9]}
             elif [[ ${var} == "11" ]]; then device=${device_arr[10]}
             elif [[ ${var} == "0" ]]; then exit
-            else message_select_device
             fi
     done
 }

@@ -77,7 +77,7 @@ function setup_main_tree_protocol() {
             ovs-vsctl set bridge SW2-HQ stp_enable=true
             ovs-vsctl set bridge SW2-HQ other_config:stp-priority=24576 ;;
         "sw3-hq")
-            ovs-vsctl set bridge SW3-HQ stp_enыable=true
+            ovs-vsctl set bridge SW3-HQ stp_enable=true
             ovs-vsctl set bridge SW3-HQ other_config:stp-priority=28672 ;;
     esac
 }
@@ -123,7 +123,6 @@ function message_select_device() {
             elif [[ ${var} == "3" ]]; then device="sw3-hq"
             elif [[ ${var} == "4" ]]; then rollback
             elif [[ ${var} == "0" ]]; then exit
-            else message_select_device
             fi
     done
 }
@@ -131,7 +130,8 @@ function message_select_device() {
 function main {
     check_sudo
     message_select_device
-    device_ip=${ip_dict["sw1-hq"]}
+    device_ip=${ip_dict[$device]}
+    echo $device_ip
     create_interface || echo "Ошибка при создание интерфейсов"
     configure_interface && echo "Интерфейсы enp7s созданы и настроены" || echo "Ошибка при настройке интерфейсов"
     systemctl restart network
