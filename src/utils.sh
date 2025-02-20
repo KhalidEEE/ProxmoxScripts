@@ -8,7 +8,7 @@ function check_var_on_null() {
 
 function check_sudo() {
     if [[ $EUID -ne 0 ]]; then
-        echo "Запустите скрипт от root!" >&2
+        echo "Запустите скрипт от root!" >&2w
         exit 1
     fi
 }
