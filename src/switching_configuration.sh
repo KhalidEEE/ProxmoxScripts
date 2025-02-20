@@ -23,6 +23,9 @@ ip_dict["sw1-hq"]="192.168.11.82/29"
 ip_dict["sw2-hq"]="192.168.11.83/29"
 ip_dict["sw3-hq"]="192.168.11.84/29"
 
+device_ip=${ip_dict["sw1-hq"]}
+echo $device_ip
+
 function create_interface() {
     if [[ $device == "sw2-hq" ]]; then
         for (( i = 0; i < 4; i++ )); do
@@ -36,7 +39,7 @@ function create_interface() {
 }
 
 function configure_interface() {
-    printf "%s" "$interface_settings" >> "${enp_path_arr[0]}options"
+    echo -e "$interface_settings" >> "${enp_path_arr[0]}options"
     printf "TYPE=eth\nBOOTPROTO=static" >> "${enp_path_arr[1]}"options
     if [[ $device == "sw2-hq" ]]; then
             cp -r "${enp_path_arr[1]}" "${enp_path_arr[2]}"
@@ -82,10 +85,11 @@ function setup_main_tree_protocol() {
 }
 
 function configure_mgmt() {
+    device_ip=${ip_dict[device]}
     mkdir "${mgmt_path}"
     printf "TYPE=ovsport\nBOOTPROTO=static\nCONFIG_IPV4=yes\nBRIDGE=%s\nVID=330" "${device^^}" >> ${mgmt_path}/options
-    printf "%s" "${device_ip}" > ${mgmt_path}ipv4address
-    printf "default via %s" "${device_gateway}" > ${mgmt_path}ipv4route
+    printf "%s" "${device_ip}" >> ${mgmt_path}ipv4address
+    printf "default via %s" "${device_gateway}" >> ${mgmt_path}ipv4route
 }
 
 function configure_modprobe() {
@@ -101,9 +105,9 @@ function message_select_device() {
     while [ -z "${device}" ]; do
         printf "Выберите устройство:\n 1.SW1-HQ\n 2.SW2-HQ\n 3.SW3-HQ\n 0.Exit\n"
             read -r var
-            if [[ ${var} == "1" ]]; then device="sw1-hq" device_ip=${ip_dict[device]}
-            elif [[ ${var} == "2" ]]; then device="sw2-hq" device_ip=${ip_dict[device]}
-            elif [[ ${var} == "3" ]]; then device="sw3-hq" device_ip=${ip_dict[device]}
+            if [[ ${var} == "1" ]]; then device="sw1-hq"
+            elif [[ ${var} == "2" ]]; then device="sw2-hq"
+            elif [[ ${var} == "3" ]]; then device="sw3-hq"
             elif [[ ${var} == "0" ]]; then exit
             else message_select_device
             fi
