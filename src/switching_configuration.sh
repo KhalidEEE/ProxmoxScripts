@@ -124,9 +124,9 @@ function message_select_device() {
     while [ -z "${device}" ]; do
         printf "Выберите устройство:\n 1.SW1-HQ\n 2.SW2-HQ\n 3.SW3-HQ\n 4.Rollback\n 0.Exit\n"
             read -r var
-            if [[ ${var} == "1" ]]; then device="sw1-hq"
-            elif [[ ${var} == "2" ]]; then device="sw2-hq"
-            elif [[ ${var} == "3" ]]; then device="sw3-hq"
+            if [[ ${var} == "1" ]]; then device="sw1-hq" device_ip="192.168.11.82/29"
+            elif [[ ${var} == "2" ]]; then device="sw2-hq" device_ip="192.168.11.83/29"
+            elif [[ ${var} == "3" ]]; then device="sw3-hq" device_ip="192.168.11.84/29"
             elif [[ ${var} == "4" ]]; then rollback
             elif [[ ${var} == "0" ]]; then exit
             fi
@@ -136,8 +136,8 @@ function message_select_device() {
 function main {
     check_sudo
     message_select_device
-    device_ip=${ip_dict[$device]}
-    echo $device_ip
+#    device_ip=${ip_dict[$device]}
+#    echo $device_ip
     create_interface || echo "Ошибка при создание интерфейсов"
     configure_interface && echo "Интерфейсы enp7s созданы и настроены" || echo "Ошибка при настройке интерфейсов"
     systemctl restart network
