@@ -16,7 +16,7 @@ device=""
 device_ip=""
 device_gateway="192.168.11.81"
 
-interface_settings="BOOTPROTO=static\nTYPE=eth\nNM_CONTROLLED=no\nDISABLED=yes\nSYSTEMD_CONTROLLED=yes\nCONFIG_WIRELESS=no\nSYSTEMD_BOOTPROTO=static\nCONFIG_IPV4=yes"
+interface_settings="BOOTPROTO=static\nTYPE=eth\nCONFIG_WIRELESS=no\nSYSTEMD_BOOTPROTO=static\nCONFIG_IPV4=yes\nDISABLED=no\nNM_CONTROLLED=no\nSYSTEMD_CONTROLLED=no"
 
 declare -A ip_dict
 ip_dict["sw1-hq"]="192.168.11.82/29"
@@ -95,19 +95,33 @@ function configure_modprobe() {
     local conf_path="/etc/modules"
     modprobe 8021q
     # Проверка не работает
-    if ! grep -Ei -q "8021q"e $conf_path; then
+    if ! grep -q "8021q"e $conf_path; then
         printf "8021q" >> $conf_path
     fi
+}
+
+function rollback() {
+    for (( i = 0; i < 4; i++ )); do
+        if [[ -e "${enp_path_arr[$i]}" ]]; then
+            rm -rf "${enp_path_arr[$i]}"
+        fi
+    done
+
+    if [[ -e "${enp_path_arr[$i]}" ]]; then rm -rf ${mgmt_path}
+    fi
+    ovs-vsctl del-br "${device^^}"
+    exit
 }
 
 function message_select_device() {
     local var=""
     while [ -z "${device}" ]; do
-        printf "Выберите устройство:\n 1.SW1-HQ\n 2.SW2-HQ\n 3.SW3-HQ\n 0.Exit\n"
+        printf "Выберите устройство:\n 1.SW1-HQ\n 2.SW2-HQ\n 3.SW3-HQ\n 4.Rollback 0.Exit\n"
             read -r var
             if [[ ${var} == "1" ]]; then device="sw1-hq"
             elif [[ ${var} == "2" ]]; then device="sw2-hq"
             elif [[ ${var} == "3" ]]; then device="sw3-hq"
+            elif [[ ${var} == "4" ]]; then rollback
             elif [[ ${var} == "0" ]]; then exit
             else message_select_device
             fi
@@ -118,15 +132,15 @@ function main {
     check_sudo
     message_select_device
     device_ip=${ip_dict["sw1-hq"]}
-#    create_interface || echo "Ошибка при создание интерфейсов"
-#    configure_interface && echo "Интерфейсы enp7s созданы и настроены" || echo "Ошибка при настройке интерфейсов"
-#    systemctl restart network
-#    setup_ovs && echo "ovs настроен" || echo "Ошибка при настройке ovs"
-#    configure_mgmt && echo "MGMT создан и настроен" || echo "Ошибка при настройке MGMT"
-#    systemctl restart network
-#    configure_modprobe && echo "modprobe подключен и настроен" || echo "Ошибка при настройке modprobe"
-#    setup_main_tree_protocol && echo "Протокол основного дерева настроен" || echo "Ошибка при настройке протокола основного дерева"
-#    systemctl restart network
+    create_interface || echo "Ошибка при создание интерфейсов"
+    configure_interface && echo "Интерфейсы enp7s созданы и настроены" || echo "Ошибка при настройке интерфейсов"
+    systemctl restart network
+    setup_ovs && echo "ovs настроен" || echo "Ошибка при настройке ovs"
+    configure_mgmt && echo "MGMT создан и настроен" || echo "Ошибка при настройке MGMT"
+    systemctl restart network
+    configure_modprobe && echo "modprobe подключен и настроен" || echo "Ошибка при настройке modprobe"
+    setup_main_tree_protocol && echo "Протокол основного дерева настроен" || echo "Ошибка при настройке протокола основного дерева"
+    systemctl restart network
 }
 
 main
