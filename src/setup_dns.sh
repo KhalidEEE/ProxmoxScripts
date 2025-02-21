@@ -25,6 +25,8 @@ function setup_bind_srv1_hq() {
 #    sed -i "31s#.*#        allow-transfer { 192.168.33.66; };#" $options_path
 
 python3 - ./db.csv << EOF
+import fileinput
+
 options_path = "/etc/bind/options.conf"
 with fileinput.FileInput(options_path, inplace=True) as file:
     for line in file:
