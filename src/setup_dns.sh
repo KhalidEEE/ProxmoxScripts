@@ -37,7 +37,7 @@ function setup_bind_srv1_hq() {
                 new_line = "\tallow-query { 192.168.11.0/24; 192.168.33.0/24; };\n"
                 print(new_line, end="")
             elif file.lineno() == 30:
-                new_line = "\t8allow-transfer { 192.168.33.66; };\n\n"
+                new_line = "\tallow-transfer { 192.168.33.66; };\n\n"
                 print(new_line, end="")
             else:
                 print(line, end="")
