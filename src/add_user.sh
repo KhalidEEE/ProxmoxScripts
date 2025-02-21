@@ -14,7 +14,7 @@ DOMAIN=".au.team"
 device=""
 old_hostname="${HOSTNAME}"
 
-device_arr=("sw1-hq" "sw2-hq" "sw3-hq" "admin-hq" "admin-dt" "cli-dt" "cli-hq" "srv1-dt" "srv2-dt" "srv3-dt")
+device_arr=("sw1-hq" "sw2-hq" "sw3-hq" "admin-hq" "admin-dt" "cli-dt" "cli-hq" "srv1-dt" "srv2-dt" "srv3-dt" "srv1-hq")
 
 function set_hostname {
     hostnamectl set-hostname "${device}"${DOMAIN};

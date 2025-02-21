@@ -5,9 +5,6 @@ options {
         statistics-file "/var/run/named/named.stats";
         recursing-file "/var/run/named/named.recursing";
         secroots-file "/var/run/named/named.secroots";
-
-        tkey-gssapi-keytab \"/var/lib/samba/bind-dns/dns.keytab\";
-        minimal-responses yes;
         
         // disables the use of a PID file
         pid-file none;
@@ -25,7 +22,6 @@ options {
          */
         //forward only;
         forwarders { 77.88.8.8; };
-        include "/etc/bind/resolvconf-options.conf";
 
         /*
          * Specifies which hosts are allowed to ask ordinary questions.
