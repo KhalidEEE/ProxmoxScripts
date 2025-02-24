@@ -153,7 +153,7 @@ shared_folder_srv-hq () {
 create_backup_srv-hq () { 
     mkdir /var/bac/
 
-    printf "[Unit]\nDescription=Backup /opt/data\n\n[Service]\nType=oneshot\nExecStart=/bin/tar/ -czf \"/var/bac/SAMBA.tar.gz\" /opt/data\n\n[Install]\nWantedBy=multi-user.target" > /etc/systemd/system/backup.service
+    printf "[Unit]\nDescription=Backup /opt/data\n\n[Service]\nType=oneshot\nExecStart=/bin/tar -czf \"/var/bac/SAMBA.tar.gz\" /opt/data\n\n[Install]\nWantedBy=multi-user.target" > /etc/systemd/system/backup.service
 
     systemctl daemon-reload
     systemctl enable --now backup.service
