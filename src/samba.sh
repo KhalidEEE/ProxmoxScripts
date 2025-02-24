@@ -18,17 +18,28 @@ configuring_srv-hq () {
     grep -q 'bind-dns' /etc/bind/named.conf || echo 'include "/var/lib/samba/bind-dns/named.conf";' >> /etc/bind/named.conf
 
     sed -i "8s/^/\n /" $BIND_PATH
-    sed -i "9s#.*#        tkey-gssapi-keytab \"/var/lib/samba/bind-dns/dns.keytab\";#" $BIND_PATH
-    sed -i "10s#.*#       minimal-responses yes;#" $BIND_PATH
+    sed -i "9s#.*# \ttkey-gssapi-keytab \"/var/lib/samba/bind-dns/dns.keytab\";#" $BIND_PATH
+    sed -i "10s#.*#\tminimal-responses yes;\n#" $BIND_PATH
     sed -i "10s/^/\n /" $BIND_PATH
-    sed -i '/logging {/a\        category lame-servers { null; };' $BIND_PATH
+    sed -i '/logging {/a\\tcategory lame-servers { null; };' $BIND_PATH
+
+    chown named:named ${BIND_PATH}
+    chmod 644 ${BIND_PATH}
 
     systemctl stop bind
     rm -f /etc/samba/smb.conf
     rm -rf /var/lib/samba
     rm -rf /var/cache/samba
     mkdir -p /var/lib/samba/sysvol
-    samba-tool domain provision
+
+
+    samba-tool domain provision \
+      --realm=AU.TEAM \
+      --domain=AU \
+      --server-role=dc \
+      --dns-backend=BIND9_DLZ \
+      --adminpass='P@ssw0rd'
+
 
     systemctl enable --now samba
     systemctl start bind
@@ -41,6 +52,9 @@ configuring_srv-hq () {
     sed -i "21s#.*#        writable = yes" $SMB_PATH
     sed -i "22s#.*#        browseable = yes" $SMB_PATH
     sed -i "23s#.*#        guest ok = yes" $SMB_PATH
+
+    chown named:named ${SMB_PATH}
+    chmod 644 ${SMB_PATH}
 
     systemctl restart samba
 }

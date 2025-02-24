@@ -18,9 +18,6 @@ function setup_srv1_hq() {
     sed -i "8i allow 10.10.10.0/30" $chrony_path
     systemctl restart chronyd
 
-    chown named:named /etc/bind/options.conf
-    chmod 644 /etc/bind/options.conf
-
     timedatectl
 }
 
