@@ -9,7 +9,7 @@ mgmt_path="/etc/net/ifaces/MGMT"
 
 
 function setup_dns() {
-    printf "search au.team\nnameserver 192.168.11.66\nnameserver 192.168.33.66\n" > /etc/net/ifaces/"${1}"/resolv.conf
+    printf "search au.team\nnameserver 192.168.11.66\nnameserver 192.168.33.66\n" > "${1}"/resolv.conf
     systemctl restart network
 }
 
