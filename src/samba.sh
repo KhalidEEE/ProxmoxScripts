@@ -5,9 +5,15 @@ set -e
 
 BIND_PATH="/etc/bind/options.conf"
 KDC_PATH="/etc/krb5.conf"
-SMB_PATH="SMB_PATH=""/etc/samba/smb.conf"
+SMB_PATH="/etc/samba/smb.conf"
 
 admin_passwd="P@ssw0rd"
+
+function install_dependency() {
+    if ! rpm -q task-samba-dc &>/dev/null; then
+        apt-get install task-samba-dc -y
+    fi
+}
 
 configuring_srv-hq () {
 
@@ -44,19 +50,6 @@ configuring_srv-hq () {
     systemctl enable --now samba
     systemctl start bind
     cp /var/lib/samba/private/krb5.conf /etc/krb5.conf
-
-    sed -i "17s#.*#[SAMBA]#" $SMB_PATH
-    sed -i "18s#.*#        path = /opt/data#" $SMB_PATH
-    sed -i "19s#.*#        comment = \"SAMBA\"" $SMB_PATH
-    sed -i "20s#.*#        public = yes" $SMB_PATH
-    sed -i "21s#.*#        writable = yes" $SMB_PATH
-    sed -i "22s#.*#        browseable = yes" $SMB_PATH
-    sed -i "23s#.*#        guest ok = yes" $SMB_PATH
-
-    chown named:named ${SMB_PATH}
-    chmod 644 ${SMB_PATH}
-
-    systemctl restart samba
 }
 
 adding_all_entries_srv-hq () {
@@ -85,7 +78,7 @@ adding_all_entries_srv-hq () {
     samba-tool dns zonelist 127.0.0.1 -U Administrator --password=${admin_passwd}
 
     samba-tool dns add 127.0.0.1 33.168.192.in-addr.arpa 89 PTR r-dt.au.team -U Administrator --password=${admin_passwd}
-    samba-tool dns add 127.0.0.1 33.168.192.in-addr.arpa 90 PTR fw-dt.au.team
+    samba-tool dns add 127.0.0.1 33.168.192.in-addr.arpa 90 PTR fw-dt.au.team U Administrator --password=${admin_passwd}
     samba-tool dns add 127.0.0.1 33.168.192.in-addr.arpa 1 PTR fw-dt.au.team -U Administrator --password=${admin_passwd}
     samba-tool dns add 127.0.0.1 33.168.192.in-addr.arpa 65 PTR fw-dt.au.team -U Administrator --password=${admin_passwd}
     samba-tool dns add 127.0.0.1 33.168.192.in-addr.arpa 81 PTR fw-dt.au.team -U Administrator --password=${admin_passwd}
@@ -210,20 +203,20 @@ configuring_admin_and_cli () {
 function message_select_device() {
     local var=""
     while [ -z "${device}" ]; do
-        printf "Выберите устройство:\n 1.SRV1-HQ\ 2.SRV1-DT\n 3.ADMIN-HQ 0.Exit\n"
+        printf "Выберите устройство:\n 1.SRV1-HQ\n 2.SRV1-DT\n 3.ADMIN-HQ\n 0.Exit\n"
             read -r var
             if [[ ${var} == "1" ]]; then
-                apt-get install task-samba-dc -y
+                install_dependency
                 configuring_srv-hq
-                adding_all_entries_srv-hq
-                add_user_srv-hq
-                move_clients_srv-hq
-                shared_folder_srv-hq
+#                adding_all_entries_srv-hq
+#                add_user_srv-hq
+#                move_clients_srv-hq
+#                shared_folder_srv-hq
             elif [[ ${var} == "2" ]]; then
-                apt-get install task-samba-dc -y
+                install_dependency
                 onfiguring_srv-dt
             elif [[ ${var} == "3" ]]; then
-                apt-get install task-samba-dc -y
+                install_dependency
                 apt-get update && apt-get install -y gpupdate
                 gpupdate-setup enable
                 apt-get update && apt-get install -y admc
