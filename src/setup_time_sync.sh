@@ -1,12 +1,12 @@
 #! /bin/bash
 
 #Остановка скрипта при вознкиновение ошибки
-set -e
+set -ez
 
 chrony_path="/etc/chrony.conf"
 
 function setup_srv1_hq() {
-    apt-get update && apt-get install chrony
+    apt-get update && apt-get install -y chrony
 
     cp -r $chrony_path $chrony_path.bak
 
@@ -20,7 +20,7 @@ function setup_srv1_hq() {
 }
 
 function setup_all() {
-    apt-get update && apt-get install chrony
+    apt-get update && apt-get install -y chrony
 
     cp -r $chrony_path $chrony_path.bak
 
@@ -54,3 +54,5 @@ function message_select_device() {
 function main() {
     message_select_device
 }
+
+main
