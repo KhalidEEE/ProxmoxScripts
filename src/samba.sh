@@ -145,7 +145,7 @@ shared_folder_srv-hq () {
     # Нужно задать параметры в /etc/samba/smb.conf:
     cp /etc/samba/smb.conf /etc/samba/smb.conf.backup   
 #    printf "[SAMBA]\n%9spath = /opt/data\n%9scomment = \"SAMBA\"\n%9spublic = yes\n%9swritable = yes\n%9sbrowseable = yes\n%9sguest ok = yes" >> /etc/samba/smb.conf
-    printf "[SAMBA]\n\tpath = /opt/data\n\tcomment = SAMBA\n\tpublic = yes\n\twritable = yes\n\tbrowseable = yes\n\tguest ok = yes\n" >> /etc/samba/smb.conf
+    printf '[SAMBA]\n\tpath = /opt/data\n\tcomment = "SAMBA"\n\tpublic = yes\n\twritable = yes\n\tbrowseable = yes\n\tguest ok = yes\n' >> /etc/samba/smb.conf
 
     systemctl restart samba
 }
@@ -153,7 +153,7 @@ shared_folder_srv-hq () {
 create_backup_srv-hq () { 
     mkdir /var/bac/
 
-    printf "[Unit]\nDescription=Backup /opt/data\n\n[Service]\nType=oneshot\nExecStart=/bin/tar/ -czf \"/var/bac/SAMBA.tar.gz\" /opt/data\n\n[Install\nWantedBy=multi-user.target" > /etc/systemd/system/backup.service
+    printf "[Unit]\nDescription=Backup /opt/data\n\n[Service]\nType=oneshot\nExecStart=/bin/tar/ -czf \"/var/bac/SAMBA.tar.gz\" /opt/data\n\n[Install]\nWantedBy=multi-user.target" > /etc/systemd/system/backup.service
 
     systemctl daemon-reload
     systemctl enable --now backup.service
@@ -202,6 +202,10 @@ configuring_admin_and_cli () {
     gpupdate-setup enable
 }
 
+function rollback_entries_srv_hq () {
+    echo
+}
+
 function message_select_device() {
     local var=""
     while [ -z "${device}" ]; do
@@ -210,10 +214,10 @@ function message_select_device() {
             if [[ ${var} == "1" ]]; then
                 install_dependency
                 #configuring_srv-hq
-                adding_all_entries_srv-hq
+                #adding_all_entries_srv-hq
                 # add_user_srv-hq
-                # move_clients_srv-hq
-                # shared_folder_srv-hq
+                # move_clients_srv-hq Можно выполнить, когда устроства будут подключены
+                shared_folder_srv-hq
             elif [[ ${var} == "2" ]]; then
                 install_dependency
                 onfiguring_srv-dt
