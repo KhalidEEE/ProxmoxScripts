@@ -17,6 +17,11 @@ function setup_srv1_hq() {
     sed -i "7i allow 192.168.33.0/24" $chrony_path
     sed -i "8i allow 10.10.10.0/30" $chrony_path
     systemctl restart chronyd
+
+    chown named:named /etc/bind/options.conf
+    chmod 644 /etc/bind/options.conf
+
+    timedatectl
 }
 
 function setup_all() {
@@ -24,9 +29,11 @@ function setup_all() {
 
     cp -r $chrony_path $chrony_path.bak
 
-    sed -i "3i/^/# /" $chrony_path
+    sed -i "3s/^/# /" $chrony_path
     sed -i "4i server 192.168.11.66 iburst prefer" $chrony_path
     systemctl restart chronyd
+
+    timedatectl
 }
 
 function rollback() {
