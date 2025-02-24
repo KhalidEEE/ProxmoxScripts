@@ -18,30 +18,15 @@ function setup_bind_srv1_hq() {
 
     cp -r $options_path $options_path.bak
 
-python3 - ./db.csv << EOF
-import fileinput
+    sed -i "16s#.*#\tlisten-on { 127.0.0.1; 192.168.11.66; };#" $options_path
+    sed -i "17s#.*#\tlisten-on-v6 { any; };#" $options_path
+    sed -i "24s#.*#\tforwarders { 77.88.8.8; };#" $options_path
+    sed -i "30s#.*#\tallow-query { 192.168.11.0/24; 192.168.33.0/24; };\n#" $options_path
+    sed -i "31s#.*#\tallow-transfer { 192.168.33.66; };\n#" $options_path
 
-options_path = "/etc/bind/options.conf"
-with fileinput.FileInput(options_path, inplace=True) as file:
-    for line in file:
-        if file.lineno() == 16:
-            new_line = "\tlisten-on { 127.0.0.1; 192.168.11.66; };\n"
-            print(new_line, end="")
-        elif file.lineno() == 17:
-            new_line = "\tlisten-on-v6 { any; };\n"
-            print(new_line, end="")
-        elif file.lineno() == 24:
-            new_line = "\tforwarders { 77.88.8.8; };\n"
-            print(new_line, end="")
-        elif file.lineno() == 29:
-            new_line = "\tallow-query { 192.168.11.0/24; 192.168.33.0/24; };\n"
-            print(new_line, end="")
-        elif file.lineno() == 30:
-            new_line = "\tallow-transfer { 192.168.33.66; };\n\n"
-            print(new_line, end="")
-        else:
-            print(line, end="")
-EOF
+    chown named:named /etc/bind/options.conf
+    chmod 644 /etc/bind/options.conf
+
 
     systemctl enable --now bind
     printf "search au.team\nnameserver 192.168.11.66" > /etc/net/ifaces/enp7s1/resolv.conf
@@ -55,13 +40,15 @@ function setup_bind_srv1_dt() {
 
     cp -r $options_path $options_path.bak
 
-    sed -i "16s#.*#        listen-on { 127.0.0.1; 192.168.33.66; };#" $options_path
-    sed -i "17s#.*#        listen-on-v6 { none; };#" $options_path
-    sed -i "24s#.*#        forwarders { 77.88.8.8; };#" $options_path
-    sed -i "30s#.*#        allow-query { 192.168.33.0/24; 192.168.11.0/24; };#" $options_path
-    sed -i "31s#.*#        allow-transfer { none; };#" $options_path
-    sed -i "32s#.*#"       "/*#" $options_path
+    sed -i "16s#.*#\tlisten-on { 127.0.0.1; 192.168.33.66; };#" $options_path
+    sed -i "17s#.*#\tlisten-on-v6 { none; };#" $options_path
+    sed -i "24s#.*#\tforwarders { 77.88.8.8; };#" $options_path
+    sed -i "30s#.*#\tallow-query { 192.168.33.0/24; 192.168.11.0/24; };\n#" $options_path
+    sed -i "31s#.*#\tallow-transfer { none; };\n#" $options_path
 
+
+    chown named:named /etc/bind/options.conf
+    chmod 644 /etc/bind/options.conf
 
     systemctl enable --now bind
     control bind-slave enabled
@@ -83,7 +70,7 @@ function rollback() {
 
     if [[ -e $options_path.back ]]; then
       rm -rf $options_path
-      mv $options_path.bak $options_path
+      cp -r $options_path.bak $options_path
       echo "options.conf восстановлен"
     fi
 }
