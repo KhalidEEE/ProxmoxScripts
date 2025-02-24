@@ -11,7 +11,7 @@ admin_passwd="P@ssw0rd"
 
 function install_dependency() {
     if ! rpm -q task-samba-dc &>/dev/null; then
-        apt-get install task-samba-dc -y
+        apt-get update && apt-get install task-samba-dc -y
     fi
 }
 
