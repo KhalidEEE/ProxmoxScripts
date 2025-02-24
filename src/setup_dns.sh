@@ -8,8 +8,13 @@ enp7s1_path="/etc/net/ifaces/enp7s1"
 mgmt_path="/etc/net/ifaces/MGMT"
 
 
-function setup_dns() {
+function setup_dns_hq() {
     printf "search au.team\nnameserver 192.168.11.66\nnameserver 192.168.33.66\n" > "${1}"/resolv.conf
+    systemctl restart network
+}
+
+function setup_dns_dt() {
+    printf "search au.team\nnameserver 192.168.33.66\nnameserver 192.168.11.66\n" > "${1}"/resolv.conf
     systemctl restart network
 }
 
@@ -78,17 +83,19 @@ function rollback() {
 function message_select_device() {
     local var=""
     while [ -z "${device}" ]; do
-        printf "Выберите устройство:\n 1.SRV1-HQ\n 2.SRV1-DT\n 3.SRV2, SRV3, ADMIN-DT\n 4.SW1-HQ, SW2-HQ, SW3-HQ, ADMIN-HQ\n 5.Rollback\n 0.Exit\n"
+        printf "Выберите устройство:\n 1.SRV1-HQ\n 2.SRV1-DT\n 3.SRV2, SRV3, ADMIN-DT\n 4.SW1-HQ, SW2-HQ, SW3-HQ\n 5.ADMIN-HQ\n 6.Rollback\n 0.Exit\n"
             read -r var
             if [[ ${var} == "1" ]]; then
                 setup_bind_srv1_hq && echo "bind на srv1-hq настроен" || { echo "Ошибка при настроке bind на srv1-hq" && rollback; }
             elif [[ ${var} == "2" ]]; then
                 setup_bind_srv1_dt && echo "bind на srv1-dt настроен" || { echo "Ошибка при настроке bind на srv1-dt" && rollback; }
             elif [[ ${var} == "3" ]]; then
-                setup_dns ${enp7s1_path} && echo "bind настроен" || { echo "Ошибка при настроке bind" && rollback; }
+                setup_dns_dt ${enp7s1_path} && echo "bind настроен" || { echo "Ошибка при настроке bind" && rollback; }
             elif [[ ${var} == "4" ]]; then
-                setup_dns ${mgmt_path} && echo "bind настроен" || { echo "Ошибка при настроке bind" && rollback; }
+                setup_dns_hq ${mgmt_path} && echo "bind настроен" || { echo "Ошибка при настроке bind" && rollback; }
             elif [[ ${var} == "5" ]]; then
+                setup_dns_hq ${enp7s1_path} && echo "bind настроен" || { echo "Ошибка при настроке bind" && rollback; }
+            elif [[ ${var} == "6" ]]; then
                 rollback
             elif [[ ${var} == "0" ]]; then exit
             fi
