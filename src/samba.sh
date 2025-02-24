@@ -53,53 +53,55 @@ configuring_srv-hq () {
 }
 
 adding_all_entries_srv-hq () {
-    samba-tool dns add 127.0.0.1 au.team r-dt A 192.168.33.89 -U Administrator --password=${admin_passwd}
-    samba-tool dns add 127.0.0.1 au.team fw-dt A 192.168.33.90 -U Administrator --password=${admin_passwd}
-    samba-tool dns add 127.0.0.1 au.team fw-dt A 192.168.33.1 -U Administrator --password=${admin_passwd}
-    samba-tool dns add 127.0.0.1 au.team fw-dt A 192.168.33.65 -U Administrator --password=${admin_passwd}
-    samba-tool dns add 127.0.0.1 au.team fw-dt A 192.168.33.81 -U Administrator --password=${admin_passwd}
-    samba-tool dns add 127.0.0.1 au.team admin-dt A 192.168.33.82 -U Administrator --password=${admin_passwd}
-    samba-tool dns add 127.0.0.1 au.team srv1-dt A 192.168.33.66 -U Administrator --password=${admin_passwd}
-    samba-tool dns add 127.0.0.1 au.team srv2-dt A 192.168.33.67 -U Administrator --password=${admin_passwd}
-    samba-tool dns add 127.0.0.1 au.team srv3-dt A 192.168.33.68 -U Administrator --password=${admin_passwd}
-    samba-tool dns add 127.0.0.1 au.team cli-dt A 192.168.33.2 -U Administrator --password=${admin_passwd}
+    samba-tool dns add 127.0.0.1 au.team r-dt A 192.168.33.89 -U Administrator --password=${admin_passwd} || true
+    samba-tool dns add 127.0.0.1 au.team fw-dt A 192.168.33.90 -U Administrator --password=${admin_passwd} || true
+    samba-tool dns add 127.0.0.1 au.team fw-dt A 192.168.33.1 -U Administrator --password=${admin_passwd} || true
+    samba-tool dns add 127.0.0.1 au.team fw-dt A 192.168.33.65 -U Administrator --password=${admin_passwd} || true
+    samba-tool dns add 127.0.0.1 au.team fw-dt A 192.168.33.81 -U Administrator --password=${admin_passwd} || true
+    samba-tool dns add 127.0.0.1 au.team admin-dt A 192.168.33.82 -U Administrator --password=${admin_passwd} || true
+    samba-tool dns add 127.0.0.1 au.team srv1-dt A 192.168.33.66 -U Administrator --password=${admin_passwd} || true
+    samba-tool dns add 127.0.0.1 au.team srv2-dt A 192.168.33.67 -U Administrator --password=${admin_passwd} || true
+    samba-tool dns add 127.0.0.1 au.team srv3-dt A 192.168.33.68 -U Administrator --password=${admin_passwd} || true
+    samba-tool dns add 127.0.0.1 au.team cli-dt A 192.168.33.2 -U Administrator --password=${admin_passwd} || true
 
-    samba-tool dns add 127.0.0.1 au.team r-hq A 192.168.11.1 -U Administrator --password=${admin_passwd}
-    samba-tool dns add 127.0.0.1 au.team r-hq A 192.168.11.65 -U Administrator --password=${admin_passwd}
-    samba-tool dns add 127.0.0.1 au.team r-hq A 192.168.11.81 -U Administrator --password=${admin_passwd}
-    samba-tool dns add 127.0.0.1 au.team sw1-hq A 192.168.11.82 -U Administrator --password=${admin_passwd}
-    samba-tool dns add 127.0.0.1 au.team sw2-hq A 192.168.11.83 -U Administrator --password=${admin_passwd}
-    samba-tool dns add 127.0.0.1 au.team sw3-hq A 192.168.11.84 -U Administrator --password=${admin_passwd}
-    samba-tool dns add 127.0.0.1 au.team admin-hq A 192.168.11.85 -U Administrator --password=${admin_passwd}
-    samba-tool dns add 127.0.0.1 au.team cli-hq A 192.168.11.2 -U Administrator --password=${admin_passwd}
+    samba-tool dns add 127.0.0.1 au.team r-hq A 192.168.11.1 -U Administrator --password=${admin_passwd} || true
+    samba-tool dns add 127.0.0.1 au.team r-hq A 192.168.11.65 -U Administrator --password=${admin_passwd} || true
+    samba-tool dns add 127.0.0.1 au.team r-hq A 192.168.11.81 -U Administrator --password=${admin_passwd} || true
+    samba-tool dns add 127.0.0.1 au.team sw1-hq A 192.168.11.82 -U Administrator --password=${admin_passwd} || true
+    samba-tool dns add 127.0.0.1 au.team sw2-hq A 192.168.11.83 -U Administrator --password=${admin_passwd} || true
+    samba-tool dns add 127.0.0.1 au.team sw3-hq A 192.168.11.84 -U Administrator --password=${admin_passwd} || true
+    samba-tool dns add 127.0.0.1 au.team admin-hq A 192.168.11.85 -U Administrator --password=${admin_passwd}|| true
+    samba-tool dns add 127.0.0.1 au.team cli-hq A 192.168.11.2 -U Administrator --password=${admin_passwd} || true
 
-    samba-tool dns zonecreate 127.0.0.1 11.168.192.in-addr.arpa -U Administrator --password=${admin_passwd}
-    samba-tool dns zonecreate 127.0.0.1 33.168.192.in-addr.arpa -U Administrator --password=${admin_passwd}
-    samba-tool dns zonelist 127.0.0.1 -U Administrator --password=${admin_passwd}
+    samba-tool dns zonecreate 127.0.0.1 11.168.192.in-addr.arpa -U Administrator --password=${admin_passwd} || true
+    samba-tool dns zonecreate 127.0.0.1 33.168.192.in-addr.arpa -U Administrator --password=${admin_passwd} || true
+    samba-tool dns zonelist 127.0.0.1 -U Administrator --password=${admin_passwd} || true
 
-    samba-tool dns add 127.0.0.1 33.168.192.in-addr.arpa 89 PTR r-dt.au.team -U Administrator --password=${admin_passwd}
-    samba-tool dns add 127.0.0.1 33.168.192.in-addr.arpa 90 PTR fw-dt.au.team U Administrator --password=${admin_passwd}
-    samba-tool dns add 127.0.0.1 33.168.192.in-addr.arpa 1 PTR fw-dt.au.team -U Administrator --password=${admin_passwd}
-    samba-tool dns add 127.0.0.1 33.168.192.in-addr.arpa 65 PTR fw-dt.au.team -U Administrator --password=${admin_passwd}
-    samba-tool dns add 127.0.0.1 33.168.192.in-addr.arpa 81 PTR fw-dt.au.team -U Administrator --password=${admin_passwd}
-    samba-tool dns add 127.0.0.1 33.168.192.in-addr.arpa 82 PTR admin-dt.au.team -U Administrator --password=${admin_passwd}
-    samba-tool dns add 127.0.0.1 33.168.192.in-addr.arpa 66 PTR srv1-dt.au.team -U Administrator --password=${admin_passwd}
-    samba-tool dns add 127.0.0.1 33.168.192.in-addr.arpa 67 PTR srv2-dt.au.team -U Administrator --password=${admin_passwd}
-    samba-tool dns add 127.0.0.1 33.168.192.in-addr.arpa 68 PTR srv3-dt.au.team -U Administrator --password=${admin_passwd}
-    samba-tool dns add 127.0.0.1 33.168.192.in-addr.arpa 2 PTR cli-dt.au.team -U Administrator --password=${admin_passwd}
+    samba-tool dns add 127.0.0.1 33.168.192.in-addr.arpa 89 PTR r-dt.au.team -U Administrator --password=${admin_passwd}|| true
+    samba-tool dns add 127.0.0.1 33.168.192.in-addr.arpa 90 PTR fw-dt.au.team U Administrator --password=${admin_passwd}|| true
+    samba-tool dns add 127.0.0.1 33.168.192.in-addr.arpa 1 PTR fw-dt.au.team -U Administrator --password=${admin_passwd}|| true
+    samba-tool dns add 127.0.0.1 33.168.192.in-addr.arpa 65 PTR fw-dt.au.team -U Administrator --password=${admin_passwd}|| true
+    samba-tool dns add 127.0.0.1 33.168.192.in-addr.arpa 81 PTR fw-dt.au.team -U Administrator --password=${admin_passwd}|| true
+    samba-tool dns add 127.0.0.1 33.168.192.in-addr.arpa 82 PTR admin-dt.au.team -U Administrator --password=${admin_passwd}|| true
+    samba-tool dns add 127.0.0.1 33.168.192.in-addr.arpa 66 PTR srv1-dt.au.team -U Administrator --password=${admin_passwd}|| true
+    samba-tool dns add 127.0.0.1 33.168.192.in-addr.arpa 67 PTR srv2-dt.au.team -U Administrator --password=${admin_passwd}|| true
+    samba-tool dns add 127.0.0.1 33.168.192.in-addr.arpa 68 PTR srv3-dt.au.team -U Administrator --password=${admin_passwd}|| true
+    samba-tool dns add 127.0.0.1 33.168.192.in-addr.arpa 2 PTR cli-dt.au.team -U Administrator --password=${admin_passwd}|| true
 
-    samba-tool dns add 127.0.0.1 11.168.192.in-addr.arpa 1 PTR r-hq.au.team -U Administrator --password=${admin_passwd}
-    samba-tool dns add 127.0.0.1 11.168.192.in-addr.arpa 65 PTR r-hq.au.team -U Administrator --password=${admin_passwd}
-    samba-tool dns add 127.0.0.1 11.168.192.in-addr.arpa 66 PTR srv1-hq.au.team -U Administrator --password=${admin_passwd}
-    samba-tool dns add 127.0.0.1 11.168.192.in-addr.arpa 81 PTR r-hq.au.team -U Administrator --password=${admin_passwd}
-    samba-tool dns add 127.0.0.1 11.168.192.in-addr.arpa 82 PTR sw1-hq.au.team -U Administrator --password=${admin_passwd}
-    samba-tool dns add 127.0.0.1 11.168.192.in-addr.arpa 83 PTR sw2-hq.au.team -U Administrator --password=${admin_passwd}
-    samba-tool dns add 127.0.0.1 11.168.192.in-addr.arpa 84 PTR sw3-hq.au.team -U Administrator --password=${admin_passwd}
-    samba-tool dns add 127.0.0.1 11.168.192.in-addr.arpa 85 PTR admin-hq.au.team -U Administrator --password=${admin_passwd}
-    samba-tool dns add 127.0.0.1 11.168.192.in-addr.arpa 2 PTR cli-hq.au.team -U Administrator --password=${admin_passwd}
+    samba-tool dns add 127.0.0.1 11.168.192.in-addr.arpa 1 PTR r-hq.au.team -U Administrator --password=${admin_passwd}|| true
+    samba-tool dns add 127.0.0.1 11.168.192.in-addr.arpa 65 PTR r-hq.au.team -U Administrator --password=${admin_passwd}|| true
+    samba-tool dns add 127.0.0.1 11.168.192.in-addr.arpa 66 PTR srv1-hq.au.team -U Administrator --password=${admin_passwd}|| true
+    samba-tool dns add 127.0.0.1 11.168.192.in-addr.arpa 81 PTR r-hq.au.team -U Administrator --password=${admin_passwd}|| true
+    samba-tool dns add 127.0.0.1 11.168.192.in-addr.arpa 82 PTR sw1-hq.au.team -U Administrator --password=${admin_passwd}|| true
+    samba-tool dns add 127.0.0.1 11.168.192.in-addr.arpa 83 PTR sw2-hq.au.team -U Administrator --password=${admin_passwd}|| true
+    samba-tool dns add 127.0.0.1 11.168.192.in-addr.arpa 84 PTR sw3-hq.au.team -U Administrator --password=${admin_passwd}|| true
+    samba-tool dns add 127.0.0.1 11.168.192.in-addr.arpa 85 PTR admin-hq.au.team -U Administrator --password=${admin_passwd}|| true
+    samba-tool dns add 127.0.0.1 11.168.192.in-addr.arpa 2 PTR cli-hq.au.team -U Administrator --password=${admin_passwd}|| true
 
-    samba-tool dns add 127.0.0.1 au.team www CNAME srv1-dt.au.team -U Administrator --password=${admin_passwd}
-    samba-tool dns add 127.0.0.1 au.team zabbix CNAME srv1-dt.au.team -U Administrator --password=${admin_passwd}
+    samba-tool dns add 127.0.0.1 au.team www CNAME srv1-dt.au.team -U Administrator --password=${admin_passwd}|| true
+    samba-tool dns add 127.0.0.1 au.team zabbix CNAME srv1-dt.au.team -U Administrator --password=${admin_passwd}|| true
+
+#    samba-tool dns query 127.0.0.1 33.168.192.in-addr.arpa @ PTR -U Administrator --password='P@ssw0rd'
 }
 
 add_user_srv-hq () {
@@ -207,11 +209,11 @@ function message_select_device() {
             read -r var
             if [[ ${var} == "1" ]]; then
                 install_dependency
-                configuring_srv-hq
-#                adding_all_entries_srv-hq
-#                add_user_srv-hq
-#                move_clients_srv-hq
-#                shared_folder_srv-hq
+                #configuring_srv-hq
+                adding_all_entries_srv-hq
+                # add_user_srv-hq
+                # move_clients_srv-hq
+                # shared_folder_srv-hq
             elif [[ ${var} == "2" ]]; then
                 install_dependency
                 onfiguring_srv-dt
