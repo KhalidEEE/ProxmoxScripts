@@ -1,7 +1,7 @@
 #! /bin/bash
 
 #Остановка скрипта при вознкиновение ошибки
-set -ez
+set -e
 
 chrony_path="/etc/chrony.conf"
 
