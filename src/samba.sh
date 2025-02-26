@@ -1,4 +1,4 @@
-#! /bin/bash
+1#! /bin/bash
 
 #Остановка скрипта при вознкиновение ошибки
 set -e
@@ -172,14 +172,14 @@ configuring_srv-dt () {
     grep -q 'bind-dns' /etc/bind/named.conf || echo 'include "/var/lib/samba/bind-dns/named.conf";' >> /etc/bind/named.conf
 
     sed -i "8s/^/\n /" $BIND_PATH
-    sed -i "9s#.*#        tkey-gssapi-keytab \"/var/lib/samba/bind-dns/dns.keytab\";#" $BIND_PATH
-    sed -i "10s#.*#       minimal-responses yes;#" $BIND_PATH
+    sed -i "9s#.*# \ttkey-gssapi-keytab \"/var/lib/samba/bind-dns/dns.keytab\";#" $BIND_PATH
+    sed -i "10s#.*#\tminimal-responses yes;\n#" $BIND_PATH
     sed -i "10s/^/\n /" $BIND_PATH
-    sed -i '/logging {/a\        category lame-servers { null; };' $BIND_PATH
+    sed -i '/logging {/a\\tcategory lame-servers { null; };' $BIND_PATH
 
-    sed -i '/logging {/a\ default_realm = AU.TEAM' $KDC_PATH
-    sed -i "11s/^/ dns_lookup_realm = false/" $KDC_PATH
-    
+    rm -rf ${KDC_PATH}
+    local FILE_PATH="$(dirname "$SCRIPT_DIR")/text3"
+    cp -r "${FILE_PATH}" "${KDC_PATH}"
 
     kinit administrator@AU.TEAM
 
@@ -209,14 +209,13 @@ function rollback_entries_srv_hq () {
 function message_select_device() {
     local var=""
     while [ -z "${device}" ]; do
-        printf "Выберите устройство:\n 1.SRV1-HQ\n 2.SRV1-DT\n 3.ADMIN-HQ\n 0.Exit\n"
+        printf "Выберите устройство:\n 1.SRV1-HQ\n 2.SRV1-DT\n 3.ADMIN-HQ\n 4.Переместить устройства на srv1-hq\n 0.Exit\n"
             read -r var
             if [[ ${var} == "1" ]]; then
                 install_dependency
-                #configuring_srv-hq
-                #adding_all_entries_srv-hq
-                # add_user_srv-hq
-                # move_clients_srv-hq Можно выполнить, когда устроства будут подключены
+                configuring_srv-hq
+                adding_all_entries_srv-hq
+                add_user_srv-hq
                 shared_folder_srv-hq
             elif [[ ${var} == "2" ]]; then
                 install_dependency
@@ -230,6 +229,8 @@ function message_select_device() {
                 #Нужно адаптировать изменения в интрефейсе под консоль
                 apt-get install -y gpui
                 #Нужно адаптировать изменения в интрефейсе под консоль
+            elif [[ ${var} == "4" ]]; then
+                move_clients_srv-hq
             elif [[ ${var} == "0" ]]; then exit
             fi
     done
