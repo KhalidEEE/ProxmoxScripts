@@ -1,5 +1,9 @@
 1#! /bin/bash
 
+my_dir="$(dirname "$0")"
+
+source "$my_dir/utils.sh"
+
 #Остановка скрипта при вознкиновение ошибки
 set -e
 
@@ -139,7 +143,10 @@ move_clients_srv-hq () {
 }
 
 shared_folder_srv-hq () {
-    mkdir /opt/data
+    if [[ ! -e /opt/data ]]; then
+        mkdir /opt/data
+    fi
+
     chmod 777 /opt/data
 
     # Нужно задать параметры в /etc/samba/smb.conf:
@@ -193,8 +200,8 @@ configuring_srv-dt () {
     systemctl enable --now samba
     systemctl enable --now bind 
 
-    samba-tool drs replicate srv1-dt.au.team srv1-hq.au.team dc=au,dc=team -Uadministrator
-    samba-tool drs replicate srv1-hq.au.team srv1-dt.au.team dc=au,dc=team -Uadministrator
+    samba-tool drs replicate srv1-dt.au.team srv1-hq.au.team dc=au,dc=team -U administrator
+    samba-tool drs replicate srv1-hq.au.team srv1-dt.au.team dc=au,dc=team -U administrator
 }
 
 configuring_admin_and_cli () {
