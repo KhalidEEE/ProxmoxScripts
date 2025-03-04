@@ -1,4 +1,8 @@
-#! /bin/bash
+1#! /bin/bash
+
+my_dir="$(dirname "$0")"
+
+source "$my_dir/utils.sh"
 
 #Остановка скрипта при вознкиновение ошибки
 set -e
@@ -110,19 +114,19 @@ add_user_srv-hq () {
     samba-tool group add group3
 
     for i in {1..3}; do
-    samba-tool user add user$i resu;
+    samba-tool user add user$i As121213@@;
     samba-tool user setexpiry user$i --noexpiry;
     samba-tool group addmembers "group1" user$i;
     done
 
     for i in {4..7}; do
-    samba-tool user add user$i resu;
+    samba-tool user add user$i As121213@@;
     samba-tool user setexpiry user$i --noexpiry;
     samba-tool group addmembers "group2" user$i;
     done
 
     for i in {8..10}; do
-    samba-tool user add user$i resu;
+    samba-tool user add user$i As121213@@;
     samba-tool user setexpiry user$i --noexpiry;
     samba-tool group addmembers "group3" user$i;
     done
@@ -139,7 +143,10 @@ move_clients_srv-hq () {
 }
 
 shared_folder_srv-hq () {
-    mkdir /opt/data
+    if [[ ! -e /opt/data ]]; then
+        mkdir /opt/data
+    fi
+
     chmod 777 /opt/data
 
     # Нужно задать параметры в /etc/samba/smb.conf:
@@ -172,14 +179,14 @@ configuring_srv-dt () {
     grep -q 'bind-dns' /etc/bind/named.conf || echo 'include "/var/lib/samba/bind-dns/named.conf";' >> /etc/bind/named.conf
 
     sed -i "8s/^/\n /" $BIND_PATH
-    sed -i "9s#.*#        tkey-gssapi-keytab \"/var/lib/samba/bind-dns/dns.keytab\";#" $BIND_PATH
-    sed -i "10s#.*#       minimal-responses yes;#" $BIND_PATH
+    sed -i "9s#.*# \ttkey-gssapi-keytab \"/var/lib/samba/bind-dns/dns.keytab\";#" $BIND_PATH
+    sed -i "10s#.*#\tminimal-responses yes;\n#" $BIND_PATH
     sed -i "10s/^/\n /" $BIND_PATH
-    sed -i '/logging {/a\        category lame-servers { null; };' $BIND_PATH
+    sed -i '/logging {/a\\tcategory lame-servers { null; };' $BIND_PATH
 
-    sed -i '/logging {/a\ default_realm = AU.TEAM' $KDC_PATH
-    sed -i "11s/^/ dns_lookup_realm = false/" $KDC_PATH
-    
+    rm -rf ${KDC_PATH}
+    local FILE_PATH="$(dirname "$SCRIPT_DIR")/text3"
+    cp -r "${FILE_PATH}" "${KDC_PATH}"
 
     kinit administrator@AU.TEAM
 
@@ -188,13 +195,15 @@ configuring_srv-dt () {
     rm -rf /var/cache/samba
     mkdir -p /var/lib/samba/sysvol
 
-    samba-tool domain join au.team DC -Uadministrator --realm=au.team --dns-backend=BIND9_DLZ
+    samba-tool domain join au.team DC -Uadministrator --password=${admin_passwd} --realm=au.team --dns-backend=BIND9_DLZ
 
     systemctl enable --now samba
     systemctl enable --now bind 
 
-    samba-tool drs replicate srv1-dt.au.team srv1-hq.au.team dc=au,dc=team -Uadministrator
-    samba-tool drs replicate srv1-hq.au.team srv1-dt.au.team dc=au,dc=team -Uadministrator
+    samba-tool drs replicate srv1-dt.au.team srv1-hq.au.team dc=au,dc=team -Uadministrator --password=${admin_passwd}
+    samba-tool drs replicate srv1-hq.au.team srv1-dt.au.team dc=au,dc=team -Uadministrator --password=${admin_passwd}S
+    samba-tool drs replicate srv1-dt.au.team srv1-hq.au.team dc=au,dc=team -U administrator
+    samba-tool drs replicate srv1-hq.au.team srv1-dt.au.team dc=au,dc=team -U administrator
 }
 
 configuring_admin_and_cli () {
@@ -219,8 +228,6 @@ function message_select_device() {
                 configuring_srv-hq
                 adding_all_entries_srv-hq
                 add_user_srv-hq
-
-                #shared_folder_srv-hq
             elif [[ ${var} == "2" ]]; then
                 install_dependency
                 onfiguring_srv-dt
@@ -232,7 +239,6 @@ function message_select_device() {
                 kinit administrator@AU.TEAM
                 #Нужно адаптировать изменения в интрефейсе под консоль
                 apt-get install -y gpui
-                #Нужно адаптировать изменения в интрефейсе под консоль
             elif [[ ${var} == "4" ]]; then
                 move_clients_srv-hq
             elif [[ ${var} == "0" ]]; then exit
