@@ -1,8 +1,4 @@
-1#! /bin/bash
-
-my_dir="$(dirname "$0")"
-
-source "$my_dir/utils.sh"
+#! /bin/bash
 
 #Остановка скрипта при вознкиновение ошибки
 set -e
@@ -221,9 +217,6 @@ function message_select_device() {
         printf "Выберите устройство:\n 1.SRV1-HQ\n 2.SRV1-DT\n 3.ADMIN-HQ\n 4.Переместить устройства в SRV1-HQ 0.Exit\n"
             read -r var
             if [[ ${var} == "1" ]]; then
-                ################################
-                # Нужно добавить логику для выбора действий, т.к. некоторые действия нельзя выполнить сразу
-                ################################
                 install_dependency
                 configuring_srv-hq
                 adding_all_entries_srv-hq
