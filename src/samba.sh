@@ -209,7 +209,7 @@ function rollback_entries_srv_hq () {
 function message_select_device() {
     local var=""
     while [ -z "${device}" ]; do
-        printf "Выберите устройство:\n 1.SRV1-HQ\n 2.SRV1-DT\n 3.ADMIN-HQ\n 0.Exit\n"
+        printf "Выберите устройство:\n 1.SRV1-HQ\n 2.SRV1-DT\n 3.ADMIN-HQ\n 4.Переместить устройства в SRV1-HQ 0.Exit\n"
             read -r var
             if [[ ${var} == "1" ]]; then
                 ################################
@@ -219,8 +219,8 @@ function message_select_device() {
                 configuring_srv-hq
                 adding_all_entries_srv-hq
                 add_user_srv-hq
-                move_clients_srv-hq
-                shared_folder_srv-hq
+
+                #shared_folder_srv-hq
             elif [[ ${var} == "2" ]]; then
                 install_dependency
                 onfiguring_srv-dt
@@ -233,6 +233,8 @@ function message_select_device() {
                 #Нужно адаптировать изменения в интрефейсе под консоль
                 apt-get install -y gpui
                 #Нужно адаптировать изменения в интрефейсе под консоль
+            elif [[ ${var} == "4" ]]; then
+                move_clients_srv-hq
             elif [[ ${var} == "0" ]]; then exit
             fi
     done
