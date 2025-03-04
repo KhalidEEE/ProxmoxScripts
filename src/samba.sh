@@ -109,20 +109,20 @@ add_user_srv-hq () {
     samba-tool group add group2
     samba-tool group add group3
 
-    for i in {1..10}; do
-    samba-tool user add user$i P@ssw0rd;
+    for i in {1..3}; do
+    samba-tool user add user$i resu;
     samba-tool user setexpiry user$i --noexpiry;
     samba-tool group addmembers "group1" user$i;
     done
 
-    for i in {11..20}; do
-    samba-tool user add user$i P@ssw0rd;
+    for i in {4..7}; do
+    samba-tool user add user$i resu;
     samba-tool user setexpiry user$i --noexpiry;
     samba-tool group addmembers "group2" user$i;
     done
 
-    for i in {21..30}; do
-    samba-tool user add user$i P@ssw0rd;
+    for i in {8..10}; do
+    samba-tool user add user$i resu;
     samba-tool user setexpiry user$i --noexpiry;
     samba-tool group addmembers "group3" user$i;
     done
@@ -212,11 +212,14 @@ function message_select_device() {
         printf "Выберите устройство:\n 1.SRV1-HQ\n 2.SRV1-DT\n 3.ADMIN-HQ\n 0.Exit\n"
             read -r var
             if [[ ${var} == "1" ]]; then
+                ################################
+                # Нужно добавить логику для выбора действий, т.к. некоторые действия нельзя выполнить сразу
+                ################################
                 install_dependency
-                #configuring_srv-hq
-                #adding_all_entries_srv-hq
-                # add_user_srv-hq
-                # move_clients_srv-hq Можно выполнить, когда устроства будут подключены
+                configuring_srv-hq
+                adding_all_entries_srv-hq
+                add_user_srv-hq
+                move_clients_srv-hq
                 shared_folder_srv-hq
             elif [[ ${var} == "2" ]]; then
                 install_dependency

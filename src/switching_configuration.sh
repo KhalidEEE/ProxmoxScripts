@@ -45,20 +45,19 @@ function setup_ovs() {
     sed -i "s/OVS_REMOVE=yes/OVS_REMOVE=no/g" /etc/net/ifaces/default/options
     case $device in
         "sw1-hq")
-            ovs-vsctl add-port SW1-HQ enp7s1 trunk=110,220,330
-            ovs-vsctl add-port SW1-HQ enp7s2 trunk=110,220,330
-            ovs-vsctl add-port SW1-HQ enp7s3 trunk=110,220,330 ;;
+            ovs-vsctl add-port SW1-HQ enp7s1 trunk=101,202,303
+            ovs-vsctl add-port SW1-HQ enp7s2 trunk=101,202,303
+            ovs-vsctl add-port SW1-HQ enp7s3 trunk=101,202,303 ;;
         "sw2-hq")
-            ovs-vsctl add-port SW2-HQ enp7s1 trunk=110,220,330
-            ovs-vsctl add-port SW2-HQ enp7s2 trunk=110,220,330
-            ovs-vsctl add-port SW2-HQ enp7s3 tag=220
-            ovs-vsctl add-port SW2-HQ enp7s4 tag=110 ;;
+            ovs-vsctl add-port SW2-HQ enp7s1 trunk=101,202,303
+            ovs-vsctl add-port SW2-HQ enp7s2 trunk=101,202,303
+            ovs-vsctl add-port SW2-HQ enp7s3 tag=202
+            ovs-vsctl add-port SW2-HQ enp7s4 tag=101 ;;
         "sw3-hq")
-            ovs-vsctl add-port SW3-HQ enp7s1 trunk=110,220,330
-            ovs-vsctl add-port SW3-HQ enp7s2 trunk=110,220,330
-            ovs-vsctl add-port SW3-HQ enp7s3 tag=330 ;;
+            ovs-vsctl add-port SW3-HQ enp7s1 trunk=101,202,303
+            ovs-vsctl add-port SW3-HQ enp7s2 trunk=101,202,303
+            ovs-vsctl add-port SW3-HQ enp7s3 tag=303 ;;
     esac
-
 }
 
 function setup_main_tree_protocol() {
@@ -77,7 +76,7 @@ function setup_main_tree_protocol() {
 
 function configure_mgmt() {
     mkdir /etc/net/ifaces/MGMT/
-    printf "TYPE=ovsport\nBOOTPROTO=static\nCONFIG_IPV4=yes\nBRIDGE=%s\nVID=330" "${device^^}" >> /etc/net/ifaces/MGMT/options
+    printf "TYPE=ovsport\nBOOTPROTO=static\nCONFIG_IPV4=yes\nBRIDGE=%s\nVID=303" "${device^^}" >> /etc/net/ifaces/MGMT/options
     # device_ip пустой
     echo "${device_ip}" >> /etc/net/ifaces/MGMT/ipv4address
     printf "default via %s" "${device_gateway}" >> /etc/net/ifaces/MGMT/ipv4route

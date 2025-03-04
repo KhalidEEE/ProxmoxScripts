@@ -12,7 +12,7 @@ function setup_srv1_hq() {
 
     sed -i "3s/^/# /" $chrony_path
     sed -i "4i server ntp2.vniiftri.ru iburst prefer" $chrony_path
-    sed -i "5i local stratum 5" $chrony_path
+    sed -i "5i local stratum 3" $chrony_path
     sed -i "6i allow 192.168.11.0/24" $chrony_path
     sed -i "7i allow 192.168.33.0/24" $chrony_path
     sed -i "8i allow 10.10.10.0/30" $chrony_path

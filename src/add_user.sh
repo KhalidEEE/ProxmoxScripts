@@ -7,8 +7,8 @@ source "$my_dir/utils.sh"
 #Остановка скрипта при вознкиновение ошибки
 set -e
 
-USER_NAME="sshuser"
-NEW_PASSWORD="P@ssw0rd"
+USER_NAME="admuser"
+NEW_PASSWORD="As121213#"
 DOMAIN=".au.team"
 
 device=""
